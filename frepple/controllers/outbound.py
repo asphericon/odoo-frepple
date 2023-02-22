@@ -1452,7 +1452,7 @@ class exporter(object):
         Each order is linked to a warehouse, which is used as the location in
         frePPLe.
 
-        Only orders in the status 'draft' and 'sale' are extracted.
+        Only orders in the status 'sale' are extracted.
 
         The picking policy 'complete' is supported at the sales order line
         level only in frePPLe. FrePPLe doesn't allow yet to coordinate the
@@ -1474,7 +1474,7 @@ class exporter(object):
         # Get all sales order lines
         so_line = self.generator.getData(
             "sale.order.line",
-            search=[("product_id", "!=", False)],
+            search=[("product_id", "!=", False), ("state", "=", "sale")],
             fields=[
                 "qty_delivered",
                 "state",
