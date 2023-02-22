@@ -117,6 +117,7 @@ class XMLController(odoo.http.Controller):
         database = kwargs.get("database", req.httprequest.form.get("database", None))
         if not database:
             database = odoo.http.db_monodb(httprequest=req.httprequest)
+        req.session.db = database
         company_name = kwargs.get("company", req.httprequest.form.get("company", None))
         company = None
         if company_name:
@@ -128,7 +129,6 @@ class XMLController(odoo.http.Controller):
                 return Response("Invalid company name argument", 401)
 
         # Login
-        req.session.db = database
         try:
             uid = self.authenticate(req, database, language, company, version)
         except Exception as e:
