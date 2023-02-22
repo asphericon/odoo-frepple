@@ -1500,7 +1500,6 @@ class exporter(object):
         so_line = self.generator.getData(
             "sale.order.line",
             search=[("product_id", "!=", False), ("state", "=", "sale")],
-            # search=[("state", "=", False)],
             fields=[
                 "qty_delivered",
                 "state",
