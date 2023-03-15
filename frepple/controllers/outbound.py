@@ -1052,6 +1052,7 @@ class exporter(object):
                 "type",
                 "bom_line_ids",
                 "sequence",
+                "product_qty_maximum",
             ],
         ):
             # Determine the location
@@ -1151,7 +1152,18 @@ class exporter(object):
                             producedQty = 1
                         if producedQty != 1:
                             yield "<size_minimum>%s</size_minimum>\n" % producedQty
+                        
+                        # Handle maximum produced quantity of a bom
+                        if i["product_qty_maximum"]:
+                            producedQtyMax = self.convert_qty_uom(
+                                i["product_qty_maximum"],
+                                i["product_uom_id"],
+                                i["product_tmpl_id"][0],
+                            )
+                            yield "<size_maximum>%s</size_maximum>\n" % producedQtyMax
+
                         yield "<flows>\n"
+                        
 
                         # Build consuming flows.
                         # If the same component is consumed multiple times in the same BOM
@@ -1312,6 +1324,15 @@ class exporter(object):
                             producedQty = 1
                         if producedQty != 1:
                             yield "<size_minimum>%s</size_minimum>\n" % producedQty
+
+                        # Handle maximum produced quantity of a bom
+                        if i["product_qty_maximum"]:
+                            producedQtyMax = self.convert_qty_uom(
+                                i["product_qty_maximum"],
+                                i["product_uom_id"],
+                                i["product_tmpl_id"][0],
+                            )
+                            yield "<size_maximum>%s</size_maximum>\n" % producedQtyMax
 
                         yield "<suboperations>"
 
