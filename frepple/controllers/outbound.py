@@ -1317,10 +1317,10 @@ class exporter(object):
 
                         # Handle maximum produced quantity of a bom
                         if i["product_qty_maximum"]:
-                            producedQtyMax = (
-                                i["product_qty_maximum"]
-                                * getattr(i, "product_efficiency", 1.0)
-                                * uom_factor
+                            producedQtyMax = self.convert_qty_uom(
+                                i["product_qty_maximum"],
+                                i["product_uom_id"],
+                                i["product_tmpl_id"][0],
                             )
                             yield "<size_maximum>%s</size_maximum>\n" % producedQtyMax
 
