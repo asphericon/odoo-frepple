@@ -1327,10 +1327,10 @@ class exporter(object):
 
                         # Handle maximum produced quantity of a bom
                         if i["product_qty_maximum"]:
-                            producedQtyMax = self.convert_qty_uom(
-                                i["product_qty_maximum"],
-                                i["product_uom_id"],
-                                i["product_tmpl_id"][0],
+                            producedQtyMax = (
+                                i["product_qty_maximum"]
+                                * getattr(i, "product_efficiency", 1.0)
+                                * uom_factor
                             )
                             yield "<size_maximum>%s</size_maximum>\n" % producedQtyMax
 
@@ -1904,9 +1904,9 @@ class exporter(object):
         for i in self.generator.getData(
             "mrp.production",
             # Option 1: import only the odoo status from "confirmed" onwards
-            search=[("state", "in", ["progress", "confirmed", "to_close"])],
+            # search=[("state", "in", ["progress", "confirmed", "to_close"])],
             # Option 2: Also import draft manufacturing order from odoo (to avoid that frepple reproposes it another time)
-            # search=[("state", "in", ["draft", "progress", "confirmed", "to_close"])],
+            search=[("state", "in", ["draft", "progress", "confirmed", "to_close"])],
             fields=[
                 "bom_id",
                 "date_start",
@@ -1962,11 +1962,12 @@ class exporter(object):
 
             # Create a record for the MO
             # Option 1: compute MO end date based on the start date
+            # customized: set state approved for draft MOs, otherwise confirmed 
             yield '<operationplan type="MO" reference=%s start="%s" quantity="%s" status="%s">\n' % (
                 quoteattr(i["name"]),
                 startdate,
                 qty,
-                "approved",  # In the "approved" status, frepple can still reschedule the MO in function of material and capacity
+                "approved" if i["state"] == "draft" else "confirmed",  # In the "approved" status, frepple can still reschedule the MO in function of material and capacity
                 # "confirmed",  # In the "confirmed" status, frepple sees the MO as frozen and unchangeable
                 # "approved" if i["status"]  == "confirmed" else "confirmed", # In-progress can't be rescheduled in frepple, but confirmed MOs
             )
