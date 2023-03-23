@@ -956,7 +956,7 @@ class exporter(object):
                     for k, v in suppliers.items():
                         yield '<itemsupplier leadtime="P%dD" priority="%s" batchwindow="P%dD" size_minimum="%f" cost="%f"%s%s><supplier name=%s/></itemsupplier>\n' % (
                             v["delay"],
-                            v["sequence"] or 1,
+                            100 + v["sequence"] or 1,
                             v["batching_window"] or 0,
                             v["min_qty"],
                             max(0, v["price"]),
@@ -1295,7 +1295,7 @@ class exporter(object):
                         yield '<operation name=%s size_multiple="1" posttime="P%dD" priority="%s" xsi:type="operation_routing"><item name=%s/><location name=%s/>\n' % (
                             quoteattr(operation),
                             self.manufacturing_lead,
-                            100 + (i["sequence"] or 1),
+                            (i["sequence"] or 1),
                             quoteattr(product_buf["name"]),
                             quoteattr(location),
                         )
