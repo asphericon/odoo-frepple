@@ -37,4 +37,10 @@ class WorkcenterInherit(models.Model):
         "workcenter",
         string="Skills",
         help="Skills the work center has",
+        
+    )
+    export_to_frepple = fields.Boolean(
+        "Export to frePPLe",
+        default=False,
+        help="Mark workcenters to export them into frepple for planning.",
     )

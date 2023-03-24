@@ -15,8 +15,9 @@
                 <group>
                     <group>
                         <field name="workcenter" invisible="context.get('workcenter_invisible', False)"/>
-                        <field name="skill" />
-                        <field name="priority" />
+                        <field name="skill"/>
+                        <field name="priority"/>
+                        <field name="export_to_frepple"/>
                     </group>
                 </group>
             </form>
@@ -28,8 +29,9 @@
         <field name="arch" type="xml">
             <tree>
                 <field name="workcenter" invisible="context.get('workcenter_invisible', False)"/>
-                <field name="skill" />
-                <field name="priority" />
+                <field name="skill"/>
+                <field name="priority"/>
+                <field name="export_to_frepple"/>
             </tree>
         </field>
     </record>
