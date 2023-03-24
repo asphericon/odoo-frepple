@@ -38,4 +38,3 @@ class WorkcenterSkill(models.Model):
         help="Priority of this workcenter to fulfill requirements for this skill",
     )
     export_to_frepple = fields.Boolean(related="workcenter.export_to_frepple")
-    # secondary_skill_ids = fields.One2many(related="workcenter.secondary_skill_ids")
