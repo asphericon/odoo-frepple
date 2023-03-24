@@ -704,6 +704,7 @@ class exporter(object):
         for i in self.generator.getData(
             "mrp.workcenter.skill",
             fields=["workcenter", "skill", "priority"],
+            search=[("export_to_frepple", "=", True)],
         ):
             if not i["workcenter"] or i["workcenter"][0] not in self.map_workcenters:
                 continue
@@ -748,7 +749,9 @@ class exporter(object):
                 "time_efficiency",
                 "capacity",
                 "tool",
+                "export_to_frepple",
             ],
+            search=[("export_to_frepple", "=", True)],
         ):
             if first:
                 yield "<!-- workcenters -->\n"

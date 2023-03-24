@@ -9,6 +9,7 @@
                 <field name="owner" />
                 <field name="tool" optional="hide" />
                 <field name="workcenter_skill_ids" string="skills" widget="many2many_tags" optional="hide" />
+                <field name="export_to_frepple" widget="boolean_toggle"/>
             </field>
         </field>
     </record>
@@ -19,8 +20,9 @@
         <field name="inherit_id" ref="mrp.mrp_workcenter_view" />
         <field name="arch" type="xml">
             <field name="name" position="after">
-                <field name="owner" />
-                <field name="tool" />
+                <field name="owner"/>
+                <field name="tool"/>
+                <field name="export_to_frepple"/>
             </field>
         </field>
     </record>
