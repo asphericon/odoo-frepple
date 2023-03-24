@@ -17,6 +17,7 @@
                         <field name="workcenter"/>
                         <field name="skill"/>
                         <field name="priority"/>
+                        <field name="export_to_frepple"/>
                     </group>
                 </group>
             </form>
@@ -30,6 +31,7 @@
                 <field name="workcenter"/>
                 <field name="skill"/>
                 <field name="priority"/>
+                <field name="export_to_frepple"/>
             </tree>
         </field>
     </record>

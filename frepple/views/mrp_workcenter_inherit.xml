@@ -10,6 +10,7 @@
             <field name="name" position="after">
                 <field name="owner"/>
                 <field name="tool"/>
+                <field name="export_to_frepple" widget="boolean_toggle"/>
             </field>
         </field>
     </record>
@@ -22,6 +23,7 @@
             <field name="name" position="after">
                 <field name="owner"/>
                 <field name="tool"/>
+                <field name="export_to_frepple"/>
             </field>
         </field>
     </record>

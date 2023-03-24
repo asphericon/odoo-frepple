@@ -29,3 +29,4 @@ class WorkcenterSkill(models.Model):
         default=1,
         help="Priority of this workcenter to fulfill requirements for this skill",
     )
+    export_to_frepple = fields.Boolean(related="workcenter.export_to_frepple")

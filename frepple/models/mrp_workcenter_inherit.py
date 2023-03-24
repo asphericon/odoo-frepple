@@ -32,3 +32,8 @@ class WorkcenterInherit(models.Model):
         default=False,
         help="Mark workcenters that are tools, fixtures or holders. The same tool needs to accompany a manufacturing order through all its work orders.",
     )
+    export_to_frepple = fields.Boolean(
+        "Export to frePPLe",
+        default=False,
+        help="Mark workcenters to export them into frepple for planning.",
+    )
