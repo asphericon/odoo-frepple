@@ -265,6 +265,10 @@ class importer(object):
                             ],
                             limit=1,
                         )
+                        
+                        location_src = self.env.ref("__export__.stock_location_de_pre_prod") if self.company.id == 1 else self.env.ref("__export__.stock_location_cz_pre_prod")
+                        location_dest = self.env.ref("__export__.stock_location_de_post_prod") if self.company.id == 1 else self.env.ref("__export__.stock_location_cz_post_prod")
+                        
                         mo = mfg_order.create(
                             {
                                 "product_qty": elem.get("quantity"),
@@ -274,6 +278,8 @@ class importer(object):
                                 "company_id": self.company.id,
                                 "product_uom_id": int(uom_id),
                                 "picking_type_id": picking.id,
+                                "location_src_id": location_src.id,
+                                "location_dest_id": location_dest.id,
                                 "bom_id": int(elem.get("operation").rsplit(" ", 1)[1]),
                                 "qty_producing": 0.00,
                                 # TODO no place to store the criticality
