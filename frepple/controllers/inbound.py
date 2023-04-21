@@ -265,10 +265,17 @@ class importer(object):
                             ],
                             limit=1,
                         )
-                        
-                        location_src = self.env.ref("__export__.stock_location_de_pre_prod") if self.company.id == 1 else self.env.ref("__export__.stock_location_cz_pre_prod")
-                        location_dest = self.env.ref("__export__.stock_location_de_post_prod") if self.company.id == 1 else self.env.ref("__export__.stock_location_cz_post_prod")
-                        
+
+                        # update the context with the default picking type
+                        # to set correct src/dest locations
+                        if picking:
+                            self.env.context = dict(self.env.context)
+                            self.env.context.update(
+                                {
+                                    "default_picking_type_id": picking.id,
+                                }
+                            )
+
                         mo = mfg_order.create(
                             {
                                 "product_qty": elem.get("quantity"),
