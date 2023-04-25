@@ -36,6 +36,7 @@ class WorkcenterInherit(models.Model):
         "Export to frePPLe",
         default=False,
         help="Mark workcenters to export them into frepple for planning.",
+    )
     workcenter_skill_ids = fields.One2many(
         "mrp.workcenter.skill",
         "workcenter",
