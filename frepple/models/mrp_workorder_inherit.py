@@ -18,27 +18,13 @@
 from odoo import models, fields
 
 
-class WorkcenterInherit(models.Model):
-    _inherit = "mrp.workcenter"
+class WorkOrderInherit(models.Model):
+    _inherit = "mrp.workorder"
 
-    owner = fields.Many2one(
-        "mrp.workcenter",
-        "Owner",
+    secondary_workcenters = fields.One2many(
+        "mrp.workorder.secondary.workcenter",
+        "workorder_id",
         required=False,
-        help="Groups workcenters together in groups",
-    )
-    tool = fields.Boolean(
-        "is a tool",
-        default=False,
-        help="Mark workcenters that are tools, fixtures or holders. The same tool needs to accompany a manufacturing order through all its work orders.",
-    )
-    export_to_frepple = fields.Boolean(
-        "Export to frePPLe",
-        default=False,
-        help="Mark workcenters to export them into frepple for planning.",
-    workcenter_skill_ids = fields.One2many(
-        "mrp.workcenter.skill",
-        "workcenter",
-        string="Skills",
-        help="Skills the work center has",
+        copy=True,
+        help="Extra workcenters needed for this work order",
     )
