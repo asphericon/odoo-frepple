@@ -1539,7 +1539,7 @@ class exporter(object):
                 ids=move_ids,
                 fields=[
                     "state",
-                    "date",
+                    "date_deadline",
                     "product_uom_qty",
                     "quantity_done",
                     "warehouse_id",
@@ -1640,8 +1640,8 @@ class exporter(object):
                         "assigned",
                     ):
                         qty -= moves[mv_id]["reserved_availability"]
-                    if moves[mv_id]["date"]:
-                        due = self.formatDateTime(moves[mv_id]["date"])
+                    if moves[mv_id]["date_deadline"]:
+                        due = self.formatDateTime(moves[mv_id]["date_deadline"])
                     yield (
                         '<demand name=%s batch=%s quantity="%s" due="%s" priority="%s" minshipment="%s" status="%s"><item name=%s/><customer name=%s/><location name=%s/>'
                         # Enable only in frepple >= 6.25
@@ -1835,7 +1835,7 @@ class exporter(object):
                     "location_dest_id",
                     "origin",
                     "picking_id",
-                    "date",
+                    "date_deadline",
                     "purchase_line_id",
                 ],
             ):
@@ -1857,7 +1857,7 @@ class exporter(object):
                 if not location:
                     continue
                 start = self.formatDateTime(j["date_order"])
-                end = self.formatDateTime(i["date"])
+                end = self.formatDateTime(i["date_deadline"])
                 qty = i["product_qty"] - i["quantity_done"]
                 if qty >= 0:
                     yield '<operationplan reference=%s ordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/></operationplan>\n" % (
@@ -2030,7 +2030,7 @@ class exporter(object):
                             "product_id",
                             "product_qty",
                             "product_uom",
-                            "date",
+                            "date_deadline",
                             "reference",
                             "workorder_id",
                             "should_consume_qty",
