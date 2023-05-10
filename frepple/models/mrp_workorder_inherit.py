@@ -38,6 +38,7 @@ class WorkOrderInherit(models.Model):
         copy=True,
         help="Extra workcenters needed for this work order",
     )
+    secondary_skill_ids = fields.One2many(related="operation_id.secondary_skill_ids")
 
     def assign_secondary_work_centers(self):
         """

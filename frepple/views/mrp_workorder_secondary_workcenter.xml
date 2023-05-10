@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <tree>
                 <field name="workorder_id" invisible="1"/>
-                <field name="workcenter_id"/>
+                <field name="workcenter_id" />
                 <field name="duration"/>
             </tree>
         </field>
@@ -20,7 +20,8 @@
                 <sheet>
                     <group name="Secondary workcenter" context="{'tree_view_ref': 'mrp.mrp_workorder_secondary_workcenter_tree_view'}">
                         <field name="workorder_id" invisible="1"/>
-                        <field name="workcenter_id"/>
+                        <field name="secondary_skill_ids" string="Skills" widget="many2many_tags" readonly="1"/>
+                        <field name="workcenter_id" domain="[('workcenter_skill_ids.skill', 'in', secondary_skill_ids)]" options="{'no_create': True}"/>
                         <field name="duration"/>
                     </group>
                 </sheet>
