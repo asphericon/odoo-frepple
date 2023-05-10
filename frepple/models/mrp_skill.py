@@ -24,3 +24,7 @@ class Skill(models.Model):
 
     name = fields.Char("name", required=True)
     description = fields.Char("description", required=False)
+    routing_workcenter_id = fields.Many2one(
+        "mrp.routing.workcenter",
+        "Routing workcenter",
+    )

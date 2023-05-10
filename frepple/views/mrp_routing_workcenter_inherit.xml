@@ -7,6 +7,7 @@
         <field name="arch" type="xml">
             <field name="workcenter_id" position="after">
                 <field name="skill"/>
+                <field name="secondary_skill_ids" widget="many2many_tags"/>
                 <field name="search_mode"/>
                 <field name="priority"/>
                 <field name="secondary_workcenter" string="secondary work centers" widget="many2many_tags" optional="hide"/>
@@ -20,6 +21,7 @@
         <field name="arch" type="xml">
             <field name="workcenter_id" position="after">
                 <field name="skill"/>
+                <field name="secondary_skill_ids" widget="many2many_tags"/>
                 <field name="search_mode"/>
                 <field name="priority"/>
             </field>

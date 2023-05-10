@@ -37,3 +37,5 @@ class WorkorderSecondaryWorkcenter(models.Model):
         ondelete="cascade",
     )
     duration = fields.Float("Duration", help="time in minutes")
+    
+    secondary_skill_ids = fields.One2many(related="workorder_id.secondary_skill_ids")

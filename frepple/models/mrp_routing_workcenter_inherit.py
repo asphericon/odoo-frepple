@@ -52,3 +52,18 @@ class RoutingWorkcenterInherit(models.Model):
         copy=True,
         help="Extra workcenters needed for this operation",
     )
+    secondary_skill_ids = fields.One2many(
+        "mrp.skill",
+        "routing_workcenter_id",
+        required=False,
+        copy=True,
+        help="Skills of all secondary workcenters",
+        compute="_compute_secondary_skills"
+    )
+    
+    def _compute_secondary_skills(self):
+        for record in self:
+            skills = self.env['mrp.skill']
+            for secondary in record.secondary_workcenter:
+                skills |= secondary.skill
+            record.secondary_skill_ids = skills
