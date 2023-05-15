@@ -47,6 +47,10 @@ class WorkOrderInherit(models.Model):
         - else:
             take the first child, ordered by name
         """
+        # if secondary workcenters are already set, do nothing
+        if self.secondary_workcenters:
+            return True
+                
         for x in self.operation_id.secondary_workcenter:
 
             # store the ids of the workcenters having that secondary workcenter as owner
@@ -127,3 +131,14 @@ class WorkOrderInherit(models.Model):
             for wo in wo_list:
                 wo.assign_secondary_work_centers()
             return wo_list
+
+
+    def _get_duration_expected(self, alternative_workcenter=False, ratio=1):
+        duration = super()._get_duration_expected(alternative_workcenter, ratio)
+        # get the max duration of all secondary workcenters, because this is used for top-level planning
+        if self.secondary_workcenters:
+            return max(secondary_wc.duration for secondary_wc in self.secondary_workcenters)
+        else:
+            return duration
+
+    
