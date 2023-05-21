@@ -18,7 +18,13 @@
         <field name="arch" type="xml">
             <notebook position="inside">
                 <page string="Secondary Workcenters" name="Secondary Workcenters">
-                    <field name="secondary_workcenters"/>
+                    <field name="secondary_workcenters">
+                        <tree string="Secondary Workcenters" editable="bottom">
+                            <field name="secondary_skill_ids" invisible="1"/>
+                            <field name="workcenter_id" domain="[('workcenter_skill_ids.skill', 'in', secondary_skill_ids)]" options="{'no_create': True}"/>
+                            <field name="duration"/>
+                        </tree>
+                    </field>
                 </page>
             </notebook>
             <xpath expr="//field[@name='production_id']" position="after">

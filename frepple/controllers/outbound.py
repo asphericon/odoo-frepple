@@ -2319,11 +2319,12 @@ class exporter(object):
         if isinstance(self.generator, Odoo_generator):
             # SQL query gives much better performance
             self.generator.env.cr.execute(
-                "SELECT product_id, location_id, sum(quantity), sum(reserved_quantity) "
+                "SELECT product_id, stock_quant.location_id, sum(quantity), sum(reserved_quantity) "
                 "FROM stock_quant "
-                "WHERE quantity > 0 "
-                "GROUP BY product_id, location_id "
-                "ORDER BY location_id ASC"
+                "JOIN stock_location ON stock_quant.location_id = stock_location.id "
+                "WHERE quantity > 0 AND scrap_location='f' "
+                "GROUP BY product_id, stock_quant.location_id "
+                "ORDER BY stock_quant.location_id ASC"
             )
             data = self.generator.env.cr.fetchall()
         else:
