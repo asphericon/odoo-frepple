@@ -22,7 +22,7 @@
                         <field name="workorder_id" invisible="1"/>
                         <field name="secondary_skill_ids" string="Skills" widget="many2many_tags" readonly="1"/>
                         <!-- <field name="workcenter_id" domain="[('id', 'not in', parent.ids), ('workcenter_skill_ids.skill', 'in', secondary_skill_ids)]" options="{'no_create': True}"/> -->
-                        <field name="workcenter_id" domain="['|', ('id', 'in', [158,159,160,161]), ('workcenter_skill_ids.skill', 'in', secondary_skill_ids)]" options="{'no_create': True}"/>
+                        <field name="workcenter_id" domain="['|', ('id', 'in', [158,159,160,161,268,269,270]), ('workcenter_skill_ids.skill', 'in', secondary_skill_ids)]" options="{'no_create': True}"/>
                         <field name="duration"/>
                     </group>
                 </sheet>
