@@ -959,7 +959,7 @@ class exporter(object):
                     for k, v in suppliers.items():
                         yield '<itemsupplier leadtime="P%dD" priority="%s" batchwindow="P%dD" size_minimum="%f" cost="%f"%s%s><supplier name=%s/></itemsupplier>\n' % (
                             v["delay"],
-                            100 + v["sequence"] or 1,
+                            100 + (v["sequence"] or 1),
                             v["batching_window"] or 0,
                             v["min_qty"],
                             max(0, v["price"]),
@@ -1754,9 +1754,9 @@ class exporter(object):
                         "not in",
                         # Comment out on of the following alternative approaches:
                         # Alternative I: don't send RFQs to frepple because that supply isn't certain to be available yet.
-                        ("draft", "sent", "bid", "to approve", "confirmed", "cancel"),
+                        # ("draft", "sent", "bid", "to approve", "confirmed", "cancel"),
                         # Alternative II: send RFQs to frepple to avoid that the same purchasing proposal is generated again by frepple.
-                        # ("bid", "confirmed", "cancel"),
+                        ("bid", "confirmed", "cancel"),
                     ),
                     ("order_id.state", "=", False),
                 ],

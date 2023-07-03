@@ -28,11 +28,13 @@ from xml.etree.cElementTree import iterparse
 from datetime import datetime
 from pytz import timezone, UTC
 
+from odoo.tools.misc import get_lang
+
 logger = logging.getLogger(__name__)
 
 
 class importer(object):
-    def __init__(self, req, database=None, company=None, mode=1):
+    def __init__(self, req, database=None, company=None, mode=2):
         self.env = req.env
         self.database = database
         self.company = company
@@ -237,6 +239,17 @@ class importer(object):
                                 price_unit = product_supplierinfo.price
                             else:
                                 price_unit = 0
+                            
+                            # asph
+                            if product_supplierinfo:
+                                product_lang_ctx = {'seller_id': product_supplierinfo.partner_id.id, 'lang': get_lang(self.env, product_supplierinfo.partner_id.lang).code}
+                                product_name = proc_orderline._get_product_purchase_description(product.with_context(product_lang_ctx)) 
+                            elif supplier_id:
+                                product_lang_ctx = {'lang': get_lang(self.env, supplier_id.lang).code}
+                                product_name = proc_orderline._get_product_purchase_description(product.with_context(product_lang_ctx)) 
+                            else:
+                                product_name = elem.get("item")
+                            
                             po_line = proc_orderline.create(
                                 {
                                     "order_id": supplier_reference[supplier_id]["id"],
@@ -245,7 +258,7 @@ class importer(object):
                                     "product_uom": int(uom_id),
                                     "date_planned": date_planned,
                                     "price_unit": price_unit,
-                                    "name": elem.get("item"),
+                                    "name": product_name, #elem.get("item"),
                                 }
                             )
                             product_supplier_dict[(item_id, supplier_id)] = po_line
