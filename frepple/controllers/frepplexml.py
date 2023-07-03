@@ -148,7 +148,7 @@ class XMLController(odoo.http.Controller):
                     uid=uid,
                     database=database,
                     company=company_name,
-                    mode=int(kwargs.get("mode", 1)),
+                    mode=int(kwargs.get("mode", 2)),
                     timezone=kwargs.get("timezone", None),
                     singlecompany=kwargs.get("singlecompany", "false").lower()
                     == "true",
@@ -199,7 +199,7 @@ class XMLController(odoo.http.Controller):
                     req,
                     database=database,
                     company=company,
-                    mode=req.httprequest.form.get("mode", 1),
+                    mode=req.httprequest.form.get("mode", 2),
                 )
                 return req.make_response(
                     ip.run(),
