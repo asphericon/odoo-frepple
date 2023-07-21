@@ -240,16 +240,6 @@ class importer(object):
                             else:
                                 price_unit = 0
                             
-                            # asph
-                            if product_supplierinfo:
-                                product_lang_ctx = {'seller_id': product_supplierinfo.partner_id.id, 'lang': get_lang(self.env, product_supplierinfo.partner_id.lang).code}
-                                product_name = proc_orderline._get_product_purchase_description(product.with_context(product_lang_ctx)) 
-                            elif supplier_id:
-                                product_lang_ctx = {'lang': get_lang(self.env, supplier_id.lang).code}
-                                product_name = proc_orderline._get_product_purchase_description(product.with_context(product_lang_ctx)) 
-                            else:
-                                product_name = elem.get("item")
-                            
                             po_line = proc_orderline.create(
                                 {
                                     "order_id": supplier_reference[supplier_id]["id"],
@@ -258,9 +248,19 @@ class importer(object):
                                     "product_uom": int(uom_id),
                                     "date_planned": date_planned,
                                     "price_unit": price_unit,
-                                    "name": product_name, #elem.get("item"),
+                                    "name": elem.get("item"),
                                 }
                             )
+                            
+                            #---asph - update product description
+                            if product_supplierinfo:
+                                product_lang_ctx = {'seller_id': product_supplierinfo.id, 'lang': get_lang(self.env, product_supplierinfo.name.lang).code}
+                            elif supplier_id:
+                                product_lang_ctx = {'lang': get_lang(self.env, supplier_id.lang).code}
+                            
+                            if product_lang_ctx:
+                                po_line.name = po_line._get_product_purchase_description(product.with_context(product_lang_ctx)) 
+                            #---
                             product_supplier_dict[(item_id, supplier_id)] = po_line
 
                         else:
