@@ -21,8 +21,8 @@
                     <field name="secondary_workcenters">
                         <tree string="Secondary Workcenters" editable="bottom">
                             <field name="secondary_skill_ids" invisible="1"/>
-                            <!-- <field name="workcenter_id" domain="[('id', 'not in', parent.ids), ('workcenter_skill_ids.skill', 'in', secondary_skill_ids)]" options="{'no_create': True}"/> -->
-                            <field name="workcenter_id" domain="['|', ('id', 'in', [158,159,160,161,268,269,270,281]), ('workcenter_skill_ids.skill', 'in', secondary_skill_ids)]" options="{'no_create': True}"/>
+                            <!-- <field name="workcenter_id" domain="('id', 'not in', parent.ids), ('workcenter_skill_ids.skill', 'in', secondary_skill_ids)]" options="{'no_create': True}"/> -->
+                            <field name="workcenter_id" domain="['|', ('id', 'in', [158,159,160,161,220,268,269,270,281]), ('workcenter_skill_ids.skill', 'in', secondary_skill_ids)]" options="{'no_create': True}"/>
                             <field name="duration"/>
                         </tree>
                     </field>
