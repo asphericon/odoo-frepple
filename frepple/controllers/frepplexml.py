@@ -33,7 +33,7 @@ from werkzeug.exceptions import MethodNotAllowed, InternalServerError
 from werkzeug.wrappers import Response
 
 from odoo import http
-from odoo.addons.web.controllers.main import db_monodb, ensure_db
+# from odoo.addons.web import http #db_monodb, ensure_db
 from odoo.addons.frepple.controllers.outbound import exporter, Odoo_generator
 from odoo.addons.frepple.controllers.inbound import importer
 
