@@ -1643,12 +1643,12 @@ class exporter(object):
                         )
                         reserved_quantity = (
                             getReservedQuantity(mv_id)
-                            if self.respect_reservations
+                            if self.respect_reservations and sm["state"] != "done"
                             else 0
                         )
 
-                        due = due = self.formatDateTime(sm["date_deadline"] or j["date_order"])
-                        
+                        due = self.formatDateTime(sm["date_deadline"] or j["date_order"])
+
                         yield (
                             '<demand name=%s batch=%s quantity="%s" due="%s" priority="%s" minshipment="%s" status="%s"><item name=%s/><customer name=%s/><location name=%s/>'
                             # Enable only in frepple >= 6.25
@@ -1843,7 +1843,7 @@ class exporter(object):
                 start = j["date_order"]
                 if not isinstance(start, datetime):
                     start = datetime.fromisoformat(start)
-                end = j["date_planned"]
+                end = i["date_planned"]
                 if not isinstance(end, datetime):
                     end = datetime.fromisoformat(end)
                 start = self.formatDateTime(start if start < end else end)
