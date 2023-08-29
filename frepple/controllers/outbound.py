@@ -751,6 +751,7 @@ class exporter(object):
                 "capacity",
                 "tool",
                 "export_to_frepple",
+                "is_frepple_constrained",
             ],
             search=[("export_to_frepple", "=", True)],
         ):
@@ -762,7 +763,7 @@ class exporter(object):
             owner = i["owner"]
             available = i["resource_calendar_id"]
             self.map_workcenters[i["id"]] = name
-            yield '<resource name=%s maximum="%s" category="%s" subcategory="%s" efficiency="%s"><location name=%s/>%s%s</resource>\n' % (
+            yield '<resource name=%s maximum="%s" category="%s" subcategory="%s" efficiency="%s" constrained="%s"><location name=%s/>%s%s</resource>\n' % (
                 quoteattr(name),
                 i["capacity"],
                 i["id"],
@@ -771,6 +772,7 @@ class exporter(object):
                 # Use this line if the tool usage is proportional to the MO quantity
                 "tool per piece" if i["tool"] else "",
                 i["time_efficiency"],
+                i["is_frepple_constrained"],
                 quoteattr(self.mfg_location),
                 ("<owner name=%s/>" % quoteattr(owner[1])) if owner else "",
                 ("<available name=%s/>" % quoteattr(available[1])) if available else "",

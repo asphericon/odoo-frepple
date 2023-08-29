@@ -10,6 +10,7 @@
                 <field name="tool" optional="hide" />
                 <field name="workcenter_skill_ids" string="skills" widget="many2many_tags" optional="hide" />
                 <field name="export_to_frepple" widget="boolean_toggle"/>
+                <field name="is_frepple_constrained" widget="boolean_toggle"/>
             </field>
         </field>
     </record>
@@ -23,6 +24,7 @@
                 <field name="owner"/>
                 <field name="tool"/>
                 <field name="export_to_frepple"/>
+                <field name="is_frepple_constrained"/>
             </field>
         </field>
     </record>
