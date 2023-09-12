@@ -1,0 +1,509 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* frepple
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-09-08 10:08+0000\n"
+"PO-Revision-Date: 2023-09-08 10:08+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: frepple
+#: model:ir.ui.menu,name:frepple.menu_frepple_web
+#: model:ir.ui.menu,name:frepple.menu_frepple_web_procurement
+msgid "Advanced planning - frePPLe"
+msgstr "Fertigungsplanung - frePPLe"
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_product_supplierinfo__batching_window
+msgid "Batching window"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model,name:frepple.model_mrp_bom
+msgid "Bill of Material"
+msgstr "Stückliste"
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_res_company__calendar
+#: model:ir.model.fields,field_description:frepple.field_res_config_settings__calendar
+msgid "Calendar"
+msgstr "Kalender"
+
+#. module: frepple
+#: model:ir.model,name:frepple.model_res_company
+msgid "Companies"
+msgstr "Unternehmen"
+
+#. module: frepple
+#: model:ir.model,name:frepple.model_res_config_settings
+msgid "Config Settings"
+msgstr "Konfiguration "
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_mrp_workcenter__is_frepple_constrained
+msgid "Constrained in frePPLe"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_mrp_secondary_workcenter__create_uid
+#: model:ir.model.fields,field_description:frepple.field_mrp_skill__create_uid
+#: model:ir.model.fields,field_description:frepple.field_mrp_workcenter_skill__create_uid
+#: model:ir.model.fields,field_description:frepple.field_mrp_workorder_secondary_workcenter__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_mrp_secondary_workcenter__create_date
+#: model:ir.model.fields,field_description:frepple.field_mrp_skill__create_date
+#: model:ir.model.fields,field_description:frepple.field_mrp_workcenter_skill__create_date
+#: model:ir.model.fields,field_description:frepple.field_mrp_workorder_secondary_workcenter__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_res_company__disclose_stack_trace
+#: model:ir.model.fields,field_description:frepple.field_res_config_settings__disclose_stack_trace
+msgid "Disclose Stack Trace"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_mrp_secondary_workcenter__display_name
+#: model:ir.model.fields,field_description:frepple.field_mrp_skill__display_name
+#: model:ir.model.fields,field_description:frepple.field_mrp_workcenter_skill__display_name
+#: model:ir.model.fields,field_description:frepple.field_mrp_workorder_secondary_workcenter__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_mrp_secondary_workcenter__duration
+#: model:ir.model.fields,field_description:frepple.field_mrp_workorder_secondary_workcenter__duration
+#: model_terms:ir.ui.view,arch_db:frepple.mrp_secondary_workcenter_form_view
+msgid "Duration"
+msgstr "Dauer"
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_mrp_workcenter__export_to_frepple
+#: model:ir.model.fields,field_description:frepple.field_mrp_workcenter_skill__export_to_frepple
+msgid "Export to frePPLe"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,help:frepple.field_mrp_routing_workcenter__secondary_workcenter
+msgid "Extra workcenters needed for this operation"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,help:frepple.field_mrp_workorder__secondary_workcenters
+msgid "Extra workcenters needed for this work order"
+msgstr ""
+
+#. module: frepple
+#: model:ir.actions.client,name:frepple.action_frepple_forecast_editor
+#: model:ir.ui.menu,name:frepple.menu_frepple_forecast_editor
+msgid "Forecast editor - frePPLe"
+msgstr ""
+
+#. module: frepple
+#: model_terms:ir.ui.view,arch_db:frepple.company_form_frepple
+#: model_terms:ir.ui.view,arch_db:frepple.res_config_settings_view_form
+msgid "FrePPLe"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,help:frepple.field_mrp_workcenter__owner
+msgid "Groups workcenters together in groups"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_mrp_secondary_workcenter__id
+#: model:ir.model.fields,field_description:frepple.field_mrp_skill__id
+#: model:ir.model.fields,field_description:frepple.field_mrp_workcenter_skill__id
+#: model:ir.model.fields,field_description:frepple.field_mrp_workorder_secondary_workcenter__id
+msgid "ID"
+msgstr ""
+
+#. module: frepple
+#: model:ir.actions.client,name:frepple.action_frepple_inventoryplanning
+#: model:ir.ui.menu,name:frepple.menu_frepple_inventoryplanning
+msgid "Inventory planning - frePPLe"
+msgstr "Bestandsplanung - frePPLe"
+
+#. module: frepple
+#: model_terms:ir.ui.view,arch_db:frepple.res_config_settings_view_form
+msgid "Key to generate web tokens to authenticate on the frePPLe server"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_mrp_secondary_workcenter____last_update
+#: model:ir.model.fields,field_description:frepple.field_mrp_skill____last_update
+#: model:ir.model.fields,field_description:frepple.field_mrp_workcenter_skill____last_update
+#: model:ir.model.fields,field_description:frepple.field_mrp_workorder_secondary_workcenter____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_mrp_secondary_workcenter__write_uid
+#: model:ir.model.fields,field_description:frepple.field_mrp_skill__write_uid
+#: model:ir.model.fields,field_description:frepple.field_mrp_workcenter_skill__write_uid
+#: model:ir.model.fields,field_description:frepple.field_mrp_workorder_secondary_workcenter__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_mrp_secondary_workcenter__write_date
+#: model:ir.model.fields,field_description:frepple.field_mrp_skill__write_date
+#: model:ir.model.fields,field_description:frepple.field_mrp_workcenter_skill__write_date
+#: model:ir.model.fields,field_description:frepple.field_mrp_workorder_secondary_workcenter__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model,name:frepple.model_mrp_secondary_workcenter
+msgid "List of secondary work centers"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model,name:frepple.model_mrp_skill
+msgid "List of skills that workcenters can have"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model,name:frepple.model_mrp_workcenter_skill
+msgid "List of workcenter skill associations"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_res_company__manufacturing_warehouse
+#: model:ir.model.fields,field_description:frepple.field_res_config_settings__manufacturing_warehouse
+#: model_terms:ir.ui.view,arch_db:frepple.res_config_settings_view_form
+msgid "Manufacturing warehouse"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,help:frepple.field_mrp_workcenter__tool
+msgid ""
+"Mark workcenters that are tools, fixtures or holders. The same tool needs to"
+" accompany a manufacturing order through all its work orders."
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,help:frepple.field_mrp_workcenter__is_frepple_constrained
+msgid "Mark workcenters to be constrained in frePPLe."
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,help:frepple.field_mrp_workcenter__export_to_frepple
+#: model:ir.model.fields,help:frepple.field_mrp_workcenter_skill__export_to_frepple
+msgid "Mark workcenters to export them into frePPLe for planning."
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_mrp_bom__product_qty_maximum
+msgid "Maximum Quantity"
+msgstr "Maximale Anzahl"
+
+#. module: frepple
+#: model:ir.model.fields,help:frepple.field_mrp_routing_workcenter__search_mode
+#: model:ir.model.fields,help:frepple.field_mrp_secondary_workcenter__search_mode
+msgid "Method to choose a workcenter among alternatives"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,help:frepple.field_product_supplierinfo__batching_window
+msgid "Number of days to group proposed purchase into a single one."
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_mrp_workcenter__owner
+msgid "Owner"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_mrp_secondary_workcenter__routing_workcenter_id
+msgid "Parent routing workcenter"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_mrp_workorder_secondary_workcenter__workorder_id
+msgid "Parent work order"
+msgstr ""
+
+#. module: frepple
+#: model:ir.actions.client,name:frepple.action_frepple_planeditor
+#: model:ir.ui.menu,name:frepple.menu_frepple_planeditor
+msgid "Plan editor - frePPLe"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,help:frepple.field_mrp_routing_workcenter__priority
+#: model:ir.model.fields,help:frepple.field_mrp_secondary_workcenter__priority
+msgid "Priority of this workcenter among alternatives"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,help:frepple.field_mrp_workcenter_skill__priority
+msgid "Priority of this workcenter to fulfill requirements for this skill"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model,name:frepple.model_stock_move_line
+msgid "Product Moves (Stock Move Line)"
+msgstr "Produktbewegungen (Lagerbewegung)"
+
+#. module: frepple
+#: model:ir.actions.client,name:frepple.action_frepple_quotes
+#: model:ir.ui.menu,name:frepple.menu_frepple_quotes
+msgid "Quotes - frePPLe"
+msgstr "Angebote - frePPLe"
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_stock_move_line__frepple_reference
+msgid "Reference (frePPLe)"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_res_company__respect_reservations
+#: model:ir.model.fields,field_description:frepple.field_res_config_settings__respect_reservations
+msgid "Respect Reservations"
+msgstr "Reservierungen beachten"
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_mrp_skill__routing_workcenter_id
+msgid "Routing workcenter"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_mrp_routing_workcenter__search_mode
+#: model:ir.model.fields,field_description:frepple.field_mrp_secondary_workcenter__search_mode
+#: model_terms:ir.ui.view,arch_db:frepple.mrp_secondary_workcenter_form_view
+msgid "Search Mode"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_mrp_routing_workcenter__secondary_skill_ids
+#: model:ir.model.fields,field_description:frepple.field_mrp_workorder__secondary_skill_ids
+#: model:ir.model.fields,field_description:frepple.field_mrp_workorder_secondary_workcenter__secondary_skill_ids
+msgid "Secondary Skill"
+msgstr ""
+
+#. module: frepple
+#: model_terms:ir.ui.view,arch_db:frepple.mrp_secondary_workcenter_form_view
+#: model_terms:ir.ui.view,arch_db:frepple.mrp_secondary_workcenter_tree_view
+#: model_terms:ir.ui.view,arch_db:frepple.mrp_workorder_secondary_workcenter_form_view
+msgid "Secondary Work Centers"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_mrp_routing_workcenter__secondary_workcenter
+msgid "Secondary Workcenter"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_mrp_workorder__secondary_workcenters
+#: model_terms:ir.ui.view,arch_db:frepple.mrp_production_workorder_form_view_inherit_frepple
+#: model_terms:ir.ui.view,arch_db:frepple.mrp_production_workorder_tree_editable_view_frepple
+#: model_terms:ir.ui.view,arch_db:frepple.mrp_routing_workcenter_inherit_form_notebook
+msgid "Secondary Workcenters"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model,name:frepple.model_mrp_workorder_secondary_workcenter
+msgid "Secondary workcenter of a work order"
+msgstr "Sekundäres Arbeitszentrum eines Arbeitsauftrags"
+
+#. module: frepple
+#: model:ir.model.fields,help:frepple.field_res_company__disclose_stack_trace
+#: model:ir.model.fields,help:frepple.field_res_config_settings__disclose_stack_trace
+#: model_terms:ir.ui.view,arch_db:frepple.res_config_settings_view_form
+msgid "Send stack trace to your frepple server upon connector exceptions."
+msgstr ""
+
+#. module: frepple
+#: model:ir.actions.act_window,name:frepple.mrp_skill_action
+#: model:ir.model.fields,field_description:frepple.field_mrp_routing_workcenter__skill
+#: model:ir.model.fields,field_description:frepple.field_mrp_secondary_workcenter__skill
+#: model:ir.model.fields,field_description:frepple.field_mrp_workcenter_skill__skill
+msgid "Skill"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_mrp_workcenter__workcenter_skill_ids
+#: model:ir.ui.menu,name:frepple.skill_menu
+#: model_terms:ir.ui.view,arch_db:frepple.mrp_production_workorder_form_view_inherit_frepple
+#: model_terms:ir.ui.view,arch_db:frepple.mrp_production_workorder_tree_editable_view_frepple
+#: model_terms:ir.ui.view,arch_db:frepple.mrp_workcenter_inherit_form_notebook
+#: model_terms:ir.ui.view,arch_db:frepple.mrp_workorder_secondary_workcenter_form_view
+msgid "Skills"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,help:frepple.field_mrp_routing_workcenter__secondary_skill_ids
+#: model:ir.model.fields,help:frepple.field_mrp_workorder__secondary_skill_ids
+#: model:ir.model.fields,help:frepple.field_mrp_workorder_secondary_workcenter__secondary_skill_ids
+msgid "Skills of all secondary workcenters"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,help:frepple.field_mrp_workcenter__workcenter_skill_ids
+msgid "Skills the work center has"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model,name:frepple.model_product_supplierinfo
+msgid "Supplier Pricelist"
+msgstr "Lieferantenpreisliste"
+
+#. module: frepple
+#: model:ir.model.fields,help:frepple.field_mrp_bom__product_qty_maximum
+msgid ""
+"This should be the highest quantity that this product can be produced in."
+msgstr ""
+
+#. module: frepple
+#: model_terms:ir.ui.view,arch_db:frepple.res_config_settings_view_form
+msgid "URL of the frePPLe server"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_res_company__webtoken_key
+#: model:ir.model.fields,field_description:frepple.field_res_config_settings__webtoken_key
+msgid "Webtoken key"
+msgstr ""
+
+#. module: frepple
+#: model_terms:ir.ui.view,arch_db:frepple.res_config_settings_view_form
+msgid ""
+"When checked frepple respects the odoo reservations.<br/>\n"
+"\t\t\t\t\t When unchecked frepple ignores reservations and reallocates material."
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,help:frepple.field_res_company__respect_reservations
+#: model:ir.model.fields,help:frepple.field_res_config_settings__respect_reservations
+msgid ""
+"When checked frepple respects the reservations. When unchecked frepple can "
+"reallocate material."
+msgstr ""
+
+#. module: frepple
+#: model:ir.model,name:frepple.model_mrp_workcenter
+#: model:ir.model.fields,field_description:frepple.field_mrp_secondary_workcenter__workcenter_id
+#: model:ir.model.fields,field_description:frepple.field_mrp_workcenter_skill__workcenter
+#: model:ir.model.fields,field_description:frepple.field_mrp_workorder_secondary_workcenter__workcenter_id
+#: model_terms:ir.ui.view,arch_db:frepple.mrp_secondary_workcenter_form_view
+msgid "Work Center"
+msgstr "Arbeitsplatz"
+
+#. module: frepple
+#: model:ir.actions.act_window,name:frepple.mrp_workcenter_skill_action
+#: model:ir.ui.menu,name:frepple.workcenter_skill_menu
+msgid "Work Center Skill"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model,name:frepple.model_mrp_routing_workcenter
+msgid "Work Center Usage"
+msgstr "Arbeitsplatz Auslastung"
+
+#. module: frepple
+#: model:ir.model,name:frepple.model_mrp_workorder
+msgid "Work Order"
+msgstr "Arbeitsauftrag"
+
+#. module: frepple
+#: model:ir.model.fields,help:frepple.field_mrp_routing_workcenter__skill
+#: model:ir.model.fields,help:frepple.field_mrp_secondary_workcenter__skill
+msgid "Workcenter skill required to perform this operation"
+msgstr ""
+
+#. module: frepple
+#: model_terms:ir.ui.view,arch_db:frepple.res_config_settings_view_form
+msgid "Working hour calendar at the manufacturing location"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_mrp_skill__description
+msgid "description"
+msgstr "Beschreibung"
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_res_config_settings__frepple_server
+msgid "frePPLe server"
+msgstr ""
+
+#. module: frepple
+#: model:res.groups,name:frepple.frepple_user
+msgid "frePPLe user"
+msgstr ""
+
+#. module: frepple
+#: model:ir.actions.client,name:frepple.action_frepple_web
+msgid "frePPLe user interface"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_res_company__frepple_server
+msgid "frePPLe web server"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_mrp_workcenter__tool
+msgid "is a tool"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields.selection,name:frepple.selection__mrp_routing_workcenter__search_mode__mincost
+#: model:ir.model.fields.selection,name:frepple.selection__mrp_secondary_workcenter__search_mode__mincost
+msgid "minimum cost"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields.selection,name:frepple.selection__mrp_routing_workcenter__search_mode__mincostpenalty
+#: model:ir.model.fields.selection,name:frepple.selection__mrp_secondary_workcenter__search_mode__mincostpenalty
+msgid "minimum cost plus penalty"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields.selection,name:frepple.selection__mrp_routing_workcenter__search_mode__minpenalty
+#: model:ir.model.fields.selection,name:frepple.selection__mrp_secondary_workcenter__search_mode__minpenalty
+msgid "minimum penalty"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_mrp_skill__name
+msgid "name"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,field_description:frepple.field_mrp_routing_workcenter__priority
+#: model:ir.model.fields,field_description:frepple.field_mrp_secondary_workcenter__priority
+#: model:ir.model.fields,field_description:frepple.field_mrp_workcenter_skill__priority
+#: model:ir.model.fields.selection,name:frepple.selection__mrp_routing_workcenter__search_mode__priority
+#: model:ir.model.fields.selection,name:frepple.selection__mrp_secondary_workcenter__search_mode__priority
+#: model_terms:ir.ui.view,arch_db:frepple.mrp_secondary_workcenter_form_view
+msgid "priority"
+msgstr ""
+
+#. module: frepple
+#: model_terms:ir.ui.view,arch_db:frepple.mrp_routing_workcenter_inherit_tree
+msgid "secondary work centers"
+msgstr ""
+
+#. module: frepple
+#: model_terms:ir.ui.view,arch_db:frepple.mrp_workcenter_inherit_tree
+msgid "skills"
+msgstr ""
+
+#. module: frepple
+#: model:ir.model.fields,help:frepple.field_mrp_secondary_workcenter__duration
+#: model:ir.model.fields,help:frepple.field_mrp_workorder_secondary_workcenter__duration
+msgid "time in minutes"
+msgstr "Dauer in Minuten"
