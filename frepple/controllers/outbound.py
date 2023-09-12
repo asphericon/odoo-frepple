@@ -27,7 +27,7 @@ import logging
 import pytz
 import xmlrpc.client
 from xml.sax.saxutils import quoteattr
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from pytz import timezone
 import ssl
 
@@ -1524,6 +1524,8 @@ class exporter(object):
                 "order_id",
                 "move_ids",
                 "date_delivery",
+                "price_unit",
+                "currency_id",
             ],
         )
 
@@ -1640,7 +1642,7 @@ class exporter(object):
             else:
                 logger.warning("Unknown sales order state: %s." % (state,))
                 continue
-
+            
             if status == "open" and i["move_ids"]:
                 # Use the delivery order info for open orders
                 cnt = 1
@@ -1663,6 +1665,7 @@ class exporter(object):
                         '<demand name=%s batch=%s quantity="%s" due="%s" priority="%s" minshipment="%s" status="%s"><item name=%s/><customer name=%s/><location name=%s/>'
                         # Enable only in frepple >= 6.25
                         # '<owner name=%s policy="%s" xsi:type="demand_group"/>'
+                        '<doubleproperty name="order_price" value="%s"/>'
                         "</demand>\n"
                     ) % (
                         quoteattr(
@@ -1682,7 +1685,11 @@ class exporter(object):
                         # Enable only in frepple >= 6.25
                         # quoteattr(i["order_id"][1]),
                         # "alltogether" if j["picking_policy"] == "one" else "independent",
-                    )
+                        i["price_unit"]*qty if i["currency_id"] == self.generator.env.company.currency_id.id else \
+                            self.generator.callMethod("res.currency", i["currency_id"], "_convert", args=[
+                                i["price_unit"]*qty, self.generator.env.company.currency_id, self.generator.env.company, date.today()
+                            ]),
+                        )
                     cnt += 1
             else:
                 # Use sales order line info
@@ -1690,6 +1697,7 @@ class exporter(object):
                     '<demand name=%s batch=%s quantity="%s" due="%s" priority="%s" minshipment="%s" status="%s"><item name=%s/><customer name=%s/><location name=%s/>'
                     # Enable only in frepple >= 6.25
                     # '<owner name=%s policy="%s" xsi:type="demand_group"/>'
+                    '<doubleproperty name="order_price" value="%s"/>'
                     "</demand>\n"
                 ) % (
                     quoteattr(name),
@@ -1705,7 +1713,12 @@ class exporter(object):
                     # Enable only in frepple >= 6.25
                     # quoteattr(i["order_id"][1]),
                     # "alltogether" if j["picking_policy"] == "one" else "independent",
+                    i["price_unit"]*qty if i["currency_id"] == self.generator.env.company.currency_id.id else \
+                        self.generator.callMethod("res.currency", i["currency_id"], "_convert", args=[
+                            i["price_unit"]*qty, self.generator.env.company.currency_id, self.generator.env.company, date.today()
+                        ]),
                 )
+                
         yield "</demands>\n"
 
     def export_forecasts(self):
