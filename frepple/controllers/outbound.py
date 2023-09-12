@@ -2349,11 +2349,12 @@ class exporter(object):
         yield "<buffers>\n"
         if isinstance(self.generator, Odoo_generator):
             # SQL query gives much better performance
+            # disable RMA locations 141,142, Kundenmaterial 47, post-prod 153
             self.generator.env.cr.execute(
                 "SELECT product_id, stock_quant.location_id, sum(quantity), sum(reserved_quantity) "
                 "FROM stock_quant "
                 "JOIN stock_location ON stock_quant.location_id = stock_location.id "
-                "WHERE quantity > 0 AND scrap_location='f' "
+                "WHERE quantity > 0 AND scrap_location='f' AND NOT stock_quant.location_id IN (57,141,142,153) "
                 "GROUP BY product_id, stock_quant.location_id "
                 "ORDER BY stock_quant.location_id ASC"
             )
