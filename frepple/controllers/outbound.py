@@ -1112,7 +1112,9 @@ class exporter(object):
                         if subcontractor:
                             yield '<operation name=%s %ssize_multiple="1" category="subcontractor" subcategory=%s duration="P%dD" posttime="P%dD" xsi:type="operation_fixed_time" priority="%s" size_minimum="%s">\n' "<item name=%s/><location name=%s/>\n" % (
                                 quoteattr(operation),
-                                ("description=%s " % quoteattr(i["code"])) if i["code"] else "",
+                                ("description=%s " % quoteattr(i["code"]))
+                                if i["code"]
+                                else "",
                                 quoteattr(subcontractor["name"]),
                                 subcontractor.get("delay", 0),
                                 self.po_lead,
@@ -1128,7 +1130,9 @@ class exporter(object):
 
                             yield '<operation name=%s %ssize_multiple="1" duration_per="%s" posttime="P%dD" priority="%s" xsi:type="operation_time_per">\n' "<item name=%s/><location name=%s/>\n" % (
                                 quoteattr(operation),
-                                ("description=%s " % quoteattr(i["code"])) if i["code"] else ""
+                                ("description=%s " % quoteattr(i["code"]))
+                                if i["code"]
+                                else "",
                                 self.convert_float_time(duration_per)
                                 if duration_per and duration_per > 0
                                 else "P0D",
@@ -1303,7 +1307,9 @@ class exporter(object):
                         #
                         yield '<operation name=%s %ssize_multiple="1" posttime="P%dD" priority="%s" xsi:type="operation_routing"><item name=%s/><location name=%s/>\n' % (
                             quoteattr(operation),
-                            ("description=%s " % quoteattr(i["code"])) if i["code"] else "",
+                            ("description=%s " % quoteattr(i["code"]))
+                            if i["code"]
+                            else "",
                             self.manufacturing_lead,
                             (i["sequence"] or 1),
                             quoteattr(product_buf["name"]),
@@ -1445,7 +1451,9 @@ class exporter(object):
 
                             yield "<suboperation>" '<operation name=%s %spriority="%s" duration_per="%s" xsi:type="operation_time_per">\n' "<location name=%s/>\n" '<loads><load quantity="%f" search=%s><resource name=%s/>%s</load>%s</loads>\n' % (
                                 quoteattr(name),
-                                ("description=%s " % quoteattr(i["code"])) if i["code"] else "",
+                                ("description=%s " % quoteattr(i["code"]))
+                                if i["code"]
+                                else "",
                                 counter * 10,
                                 self.convert_float_time(step["time_cycle"] / 1440.0)
                                 if step["time_cycle"] and step["time_cycle"] > 0
