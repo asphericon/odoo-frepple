@@ -47,7 +47,7 @@ class importer(object):
         #  - Mode 2:
         #    Incremental export of some proposed transactions from frePPLe.
         #    In this mode mode we are not erasing any previous proposals.
-        self.mode = int(mode)
+        self.mode = 2 #int(mode)
 
         # Pick up the timezone of the connector user (or UTC if not set)
         try:
