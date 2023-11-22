@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <record id="mrp_workorder_secondary_workcenter_tree_view" model="ir.ui.view">
+        <field name="name">mrp.workorder.secondary.workcenter.tree</field>
+        <field name="model">mrp.workorder.secondary.workcenter</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="workorder_id" invisible="1"/>
+                <field name="workcenter_id" />
+                <field name="duration"/>
+            </tree>
+        </field>
+    </record>
+    <record id="mrp_workorder_secondary_workcenter_form_view" model="ir.ui.view">
+        <field name="name">mrp.workorder.secondary.workcenter.form</field>
+        <field name="model">mrp.workorder.secondary.workcenter</field>
+        <field name="arch" type="xml">
+            <form string="Secondary Work Centers">
+                <sheet>
+                    <group name="Secondary workcenter" context="{'tree_view_ref': 'mrp.mrp_workorder_secondary_workcenter_tree_view'}">
+                        <field name="workorder_id" invisible="1"/>
+                        <field name="secondary_skill_ids" string="Skills" widget="many2many_tags" readonly="1"/>
+                        <!-- <field name="workcenter_id" domain="[('id', 'not in', parent.ids), ('workcenter_skill_ids.skill', 'in', secondary_skill_ids)]" options="{'no_create': True}"/> -->
+                        <field name="workcenter_id" domain="['|', ('id', 'in', [158,159,160,161,220,268,269,270,281]), ('workcenter_skill_ids.skill', 'in', secondary_skill_ids)]" options="{'no_create': True}"/>
+                        <field name="duration"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

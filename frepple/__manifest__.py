@@ -6,7 +6,7 @@
     "summary": "Advanced planning and scheduling",
     "author": "frePPLe",
     "website": "https://frepple.com",
-    "license": "AGPL-3",
+    "license": "Other OSI approved licence",
     "description": "Connector to frePPLe - finite capacity planning and scheduling",
     "external_dependencies": {"python": ["jwt"]},
     # Option 1: for manufacturing companies using MRP module
@@ -17,10 +17,12 @@
         "views/frepple_data.xml",
         "views/res_config_settings_views.xml",
         "views/mrp_skill.xml",
-        "views/mrp_workcenter_inherit.xml",
         "views/mrp_workcenter_skill.xml",
+        "views/mrp_workcenter_inherit.xml",
         "views/mrp_secondary_workcenter.xml",
         "views/mrp_routing_workcenter_inherit.xml",
+        "views/mrp_workorder_inherit.xml",
+        "views/mrp_workorder_secondary_workcenter.xml",
         "views/product_supplierinfo_inherit.xml",
     ],
     # Option 2: for distribution companies not using the MRP module

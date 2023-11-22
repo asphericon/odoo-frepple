@@ -2,30 +2,39 @@
 #
 # Copyright (C) 2014 by frePPLe bv
 #
-# This library is free software; you can redistribute it and/or modify it
-# under the terms of the GNU Affero General Public License as published
-# by the Free Software Foundation; either version 3 of the License, or
-# (at your option) any later version.
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
 #
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero
-# General Public License for more details.
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
 #
-# You should have received a copy of the GNU Affero General Public
-# License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+
 import odoo
 import logging
 from xml.etree.cElementTree import iterparse
 from datetime import datetime
 from pytz import timezone, UTC
 
+from odoo.tools.misc import get_lang
+
 logger = logging.getLogger(__name__)
 
 
 class importer(object):
-    def __init__(self, req, database=None, company=None, mode=1):
+    def __init__(self, req, database=None, company=None, mode=2):
         self.env = req.env
         self.database = database
         self.company = company
@@ -38,7 +47,7 @@ class importer(object):
         #  - Mode 2:
         #    Incremental export of some proposed transactions from frePPLe.
         #    In this mode mode we are not erasing any previous proposals.
-        self.mode = int(mode)
+        self.mode = 2 #int(mode)
 
         # Pick up the timezone of the connector user (or UTC if not set)
         try:
@@ -61,25 +70,45 @@ class importer(object):
 
     def run(self):
         msg = []
+        
+        # asph - update context to show it was done by frepple
+        frepple_context = (
+            dict(
+                self.env["res.users"]
+                .with_user(self.actual_user)
+                .context_get()
+            )
+            if self.actual_user
+            else dict(self.env.context)
+        )
+        frepple_context.update({"exported_by_frepple": True})
+        # - asph
+        
         if self.actual_user:
             proc_order = self.env["purchase.order"].with_user(self.actual_user)
             proc_orderline = self.env["purchase.order.line"].with_user(self.actual_user)
             mfg_order = self.env["mrp.production"].with_user(self.actual_user)
             mfg_workorder = self.env["mrp.workorder"].with_user(self.actual_user)
+            mfg_workcenter = self.env["mrp.workcenter"].with_user(self.actual_user)
             stck_picking_type = self.env["stock.picking.type"].with_user(
                 self.actual_user
             )
+            mfg_workorder_secondary = self.env[
+                "mrp.workorder.secondary.workcenter"
+            ].with_user(self.actual_user)
         else:
             proc_order = self.env["purchase.order"]
             proc_orderline = self.env["purchase.order.line"]
             mfg_order = self.env["mrp.production"]
             mfg_workorder = self.env["mrp.workorder"]
+            mfg_workcenter = self.env["mrp.workcenter"]
             stck_picking_type = self.env["stock.picking.type"]
+            mfg_workorder_secondary = self.env["mrp.workorder.secondary.workcenter"]
         if self.mode == 1:
             # Cancel previous draft purchase quotations
             m = self.env["purchase.order"]
             recs = m.search([("state", "=", "draft"), ("origin", "=", "frePPLe")])
-            recs.write({"state": "cancel"})
+            recs.with_context(frepple_context).write({"state": "cancel"})
             recs.unlink()
             msg.append("Removed %s old draft purchase orders" % len(recs))
 
@@ -92,7 +121,7 @@ class importer(object):
                     ("origin", "=", "frePPLe"),
                 ]
             )
-            recs.write({"state": "cancel"})
+            recs.with_context(frepple_context).write({"state": "cancel"})
             recs.unlink()
             msg.append("Removed %s old draft manufacturing orders" % len(recs))
 
@@ -113,9 +142,44 @@ class importer(object):
 
         # Mapping between frepple-generated MO reference and their odoo id.
         mo_references = {}
+        wo_data = []
 
         for event, elem in iterparse(self.datafile, events=("start", "end")):
-            if event == "end" and elem.tag == "operationplan":
+            if event == "start" and elem.tag == "workorder" and elem.get("operation"):
+                try:
+                    wo = {
+                        "operation": elem.get("operation"),
+                        "id": int(elem.get("operation").rsplit("- ", 1)[-1]),
+                    }
+                    st = elem.get("start")
+                    if st:
+                        try:
+                            wo["start"] = datetime.strptime(st, "%Y-%m-%d %H:%M:%S")
+                        except Exception:
+                            pass
+                    nd = elem.get("end")
+                    if st:
+                        try:
+                            wo["end"] = datetime.strptime(nd, "%Y-%m-%d %H:%M:%S")
+                        except Exception:
+                            pass
+                    wo_data.append(wo)
+                except Exception:
+                    pass
+            elif event == "start" and elem.tag == "resource" and wo_data:
+                try:
+                    res = {
+                        "name": elem.get("name"),
+                        "id": int(elem.get("id")),
+                        "quantity": float(elem.get("quantity") or 0),
+                    }
+                    if "workcenters" in wo_data[-1]:
+                        wo_data[-1]["workcenters"].append(res)
+                    else:
+                        wo_data[-1]["workcenters"] = [res]
+                except Exception:
+                    pass
+            elif event == "end" and elem.tag == "operationplan":
                 uom_id, item_id = elem.get("item_id").split(",")
                 try:
                     ordertype = elem.get("ordertype")
@@ -134,7 +198,7 @@ class importer(object):
                                 date_ordered, "%Y-%m-%d %H:%M:%S"
                             )
                         if supplier_id not in supplier_reference:
-                            po = proc_order.create(
+                            po = proc_order.with_context(frepple_context).create(
                                 {
                                     "company_id": self.company.id,
                                     "partner_id": int(
@@ -189,7 +253,8 @@ class importer(object):
                                 price_unit = product_supplierinfo.price
                             else:
                                 price_unit = 0
-                            po_line = proc_orderline.create(
+                            
+                            po_line = proc_orderline.with_context(frepple_context).create(
                                 {
                                     "order_id": supplier_reference[supplier_id]["id"],
                                     "product_id": int(item_id),
@@ -200,6 +265,16 @@ class importer(object):
                                     "name": elem.get("item"),
                                 }
                             )
+                            
+                            #---asph - update product description
+                            if product_supplierinfo:
+                                product_lang_ctx = {'seller_id': product_supplierinfo.id, 'lang': get_lang(self.env, product_supplierinfo.name.lang).code}
+                            elif supplier_id:
+                                product_lang_ctx = {'lang': get_lang(self.env, supplier_id.lang).code}
+                            
+                            if product_lang_ctx:
+                                po_line.name = po_line._get_product_purchase_description(product.with_context(product_lang_ctx)) 
+                            #---
                             product_supplier_dict[(item_id, supplier_id)] = po_line
 
                         else:
@@ -233,7 +308,7 @@ class importer(object):
                                     # Can't filter on the computed display_name field in the search...
                                     continue
                                 if wo:
-                                    wo.write(
+                                    wo.with_context(frepple_context).write(
                                         {
                                             "date_planned_start": self.timezone.localize(
                                                 datetime.strptime(
@@ -265,7 +340,28 @@ class importer(object):
                             ],
                             limit=1,
                         )
-                        mo = mfg_order.create(
+
+                        # update the context with the default picking type
+                        # to set correct src/dest locations
+                        # Also do not create secondary work center records
+                        context = (
+                            dict(
+                                self.env["res.users"]
+                                .with_user(self.actual_user)
+                                .context_get()
+                            )
+                            if self.actual_user
+                            else dict(self.env.context)
+                        )
+                        context.update(
+                            {
+                                "default_picking_type_id": picking.id,
+                                "ignore_secondary_workcenters": True,
+                                "exported_by_frepple": True,
+                            }
+                        )
+
+                        mo = mfg_order.with_context(context).create(
                             {
                                 "product_qty": elem.get("quantity"),
                                 "date_planned_start": elem.get("start"),
@@ -290,11 +386,48 @@ class importer(object):
                         # mo.action_confirm()  # confirm MO
                         # mo._plan_workorders() # plan MO
                         # mo.action_assign() # reserve material
+
+                        # Process the workorder information we received
+                        if wo_data:
+                            for wo in mo.workorder_ids:
+                                for rec in wo_data:
+                                    if rec["id"] == wo.operation_id.id:
+                                        # By default odoo populates the scheduled start date field only when you confirm and plan
+                                        # the manufacturing order.
+                                        # Here we are already updating it earlier
+                                        if "start" in rec:
+                                            wo.date_planned_start = (
+                                                self.timezone.localize(rec["start"])
+                                                .astimezone(UTC)
+                                                .replace(tzinfo=None)
+                                            )
+                                        if "end" in rec:
+                                            wo.date_planned_finished = (
+                                                self.timezone.localize(rec["end"])
+                                                .astimezone(UTC)
+                                                .replace(tzinfo=None)
+                                            )
+                                        for res in rec["workcenters"]:
+                                            if res["id"] != wo.workcenter_id.id:
+                                                wc = mfg_workcenter.browse(res["id"])
+                                                if wo.workcenter_id == wc[0].owner:
+                                                    wo.workcenter_id = res["id"]
+                                                else:
+                                                    mfg_workorder_secondary.with_context(frepple_context).create(
+                                                        {
+                                                            "workcenter_id": res["id"],
+                                                            "workorder_id": wo.id,
+                                                            "duration": res["quantity"]
+                                                            * wo.duration_expected,
+                                                        }
+                                                    )
+
                         countmfg += 1
                 except Exception as e:
                     logger.error("Exception %s" % e)
                     msg.append(str(e))
                 # Remove the element now to keep the DOM tree small
+                wo_data = []
                 root.clear()
             elif event == "start" and elem.tag == "operationplans":
                 # Remember the root element

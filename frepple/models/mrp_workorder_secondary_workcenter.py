@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014 by frePPLe bv
+# Copyright (C) 2023 by frePPLe bv
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -22,13 +22,27 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-import os
-import pathlib
+from odoo import models, fields, api
 
-with open(
-    os.path.join(pathlib.Path(__file__).parent.resolve(), "__manifest__.py"), "r"
-) as f:
-    with_mrp = "mrp" in eval(f.read())["depends"]
 
-from . import models
-from . import controllers
+class WorkorderSecondaryWorkcenter(models.Model):
+    _name = "mrp.workorder.secondary.workcenter"
+    _description = "Secondary workcenter of a work order"
+    _rec_name = "workcenter_id"
+
+    workorder_id = fields.Many2one(
+        "mrp.workorder",
+        "Parent work order",
+        index=True,
+        ondelete="cascade",
+        required=True,
+    )
+    workcenter_id = fields.Many2one(
+        "mrp.workcenter",
+        "Work Center",
+        required=True,
+        ondelete="cascade",
+    )
+    duration = fields.Float("Duration", help="time in minutes")
+    
+    secondary_skill_ids = fields.One2many(related="workorder_id.secondary_skill_ids")
