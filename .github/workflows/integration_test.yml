@@ -1,9 +1,9 @@
-name: Trigger test odoo 15
+name: Trigger test odoo 16
 
 on:
   push:
     branches:
-      - "15.0"
+      - "16.0"
 
 jobs:
   trigger:
@@ -18,5 +18,5 @@ jobs:
           event_type: odoo_connector
           message: |
             {
-            "branch": "15.0"
+            "branch": "16.0"
             }

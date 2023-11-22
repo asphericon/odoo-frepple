@@ -25,12 +25,10 @@
 import os
 import pathlib
 
-# commenting below section as causing loops in import
-
-# with open(
-#     os.path.join(pathlib.Path(__file__).parent.resolve(), "__manifest__.py"), "r"
-# ) as f:
-#     with_mrp = "mrp" in eval(f.read())["depends"]
+with open(
+    os.path.join(pathlib.Path(__file__).parent.resolve(), "__manifest__.py"), "r"
+) as f:
+    with_mrp = "mrp" in eval(f.read())["depends"]
 
 from . import models
 from . import controllers

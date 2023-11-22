@@ -30,8 +30,7 @@ from xml.sax.saxutils import quoteattr
 from datetime import datetime, timedelta, date
 from pytz import timezone
 import ssl
-
-with_mrp = True
+from .. import with_mrp
 
 try:
     import odoo
@@ -787,7 +786,7 @@ class exporter(object):
                 "owner",
                 "resource_calendar_id",
                 "time_efficiency",
-                "capacity",
+                "default_capacity",
                 "tool",
                 "export_to_frepple",
                 "is_frepple_constrained",
@@ -804,7 +803,7 @@ class exporter(object):
             self.map_workcenters[i["id"]] = name
             yield '<resource name=%s maximum="%s" category="%s" subcategory="%s" efficiency="%s" constrained="%s"><location name=%s/>%s%s</resource>\n' % (
                 quoteattr(name),
-                i["capacity"],
+                i["default_capacity"],
                 i["id"],
                 # Use this line if the tool use is independent of the MO quantity
                 # "tool" if i["tool"] else "",
@@ -863,7 +862,7 @@ class exporter(object):
 
         # Read the products
         supplierinfo_fields = [
-            "name",
+            "partner_id",
             "delay",
             "min_qty",
             "date_end",
@@ -945,7 +944,7 @@ class exporter(object):
                     )
                 suppliers = {}
                 for sup in results:
-                    name = "%d %s" % (sup["name"][0], sup["name"][1])
+                    name = "%d %s" % (sup["partner_id"][0], sup["partner_id"][1])
                     if sup.get("is_subcontractor", False):
                         if not hasattr(tmpl, "subcontractors"):
                             tmpl["subcontractors"] = []
@@ -2136,7 +2135,6 @@ class exporter(object):
                             "move_raw_ids",
                             "move_finished_ids",
                             "move_line_ids",
-                            "next_work_order_id",
                             "production_date",
                             "display_name",
                             "secondary_workcenters",

@@ -32,8 +32,8 @@ from tempfile import NamedTemporaryFile
 from werkzeug.exceptions import MethodNotAllowed, InternalServerError
 from werkzeug.wrappers import Response
 
+
 from odoo import http
-from odoo.addons.web.controllers.main import db_monodb, ensure_db
 from odoo.addons.frepple.controllers.outbound import exporter, Odoo_generator
 from odoo.addons.frepple.controllers.inbound import importer
 
@@ -116,8 +116,14 @@ class XMLController(odoo.http.Controller):
         language = kwargs.get("language", req.httprequest.form.get("language", None))
         database = kwargs.get("database", req.httprequest.form.get("database", None))
         if not database:
-            database = odoo.http.db_monodb(httprequest=req.httprequest)
+            all_dbs = odoo.http.db_list(force=True)
+            if len(all_dbs) == 1:
+                database = all_dbs[0]
+            else:
+                return Response("Missing database name argument", 401)
+            
         req.session.db = database
+
         company_name = kwargs.get("company", req.httprequest.form.get("company", None))
         company = None
         if company_name:
@@ -168,13 +174,15 @@ class XMLController(odoo.http.Controller):
                 with NamedTemporaryFile(
                     mode="w+t", delete=False, dir=xml_folder
                 ) as tmpfile:
-
                     for i in xp.run():
                         tmpfile.write(i)
                     filename = tmpfile.name
 
-                res = http.send_file(
-                    filename,
+                res = http.Stream(
+                    type="path",
+                    path=filename,
+                    download_name="odoo_data_for_frepple",
+                ).get_response(
                     mimetype="application/xml;charset=utf8",
                     as_attachment=False,
                 )

@@ -23,9 +23,7 @@
 #
 
 from odoo import fields, models
-
-
-with_mrp = True
+from .. import with_mrp
 
 
 class ResConfigSettings(models.TransientModel):
