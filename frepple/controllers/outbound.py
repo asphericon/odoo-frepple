@@ -27,7 +27,7 @@ import logging
 import pytz
 import xmlrpc.client
 from xml.sax.saxutils import quoteattr
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from pytz import timezone
 import ssl
 
@@ -235,6 +235,7 @@ class exporter(object):
                 yield from self.export_calendar()
         logger.debug("Exporting locations.")
         yield from self.export_locations()
+        self.load_operation_types()
         logger.debug("Exporting customers.")
         yield from self.export_customers()
         if self.mode == 1:
@@ -340,13 +341,51 @@ class exporter(object):
                 "name": i["name"],
             }
 
+    def load_operation_types(self):
+        """
+        Loading operation types into a dictionary for fast lookups.
+        """
+        self.operation_types = {}
+        for i in self.generator.getData(
+            "stock.picking.type",
+            # We also need to load INactive types
+            search=["|", ("active", "=", 1), ("active", "=", 0)],
+            fields=[
+                "name",
+                "sequence_code",
+                "code",
+                "default_location_src_id",
+                "default_location_dest_id",
+                "warehouse_id",
+            ],
+        ):
+            self.operation_types[i["id"]] = {
+                "id": i["id"],
+                "name": i["name"],
+                "code": i["code"],
+                "sequence_code": i["sequence_code"],
+                "default_location_src_id": self.map_locations.get(
+                    i["default_location_src_id"][0], None
+                )
+                if i["default_location_src_id"]
+                else None,
+                "default_location_dest_id": self.map_locations.get(
+                    i["default_location_dest_id"][0], None
+                )
+                if i["default_location_dest_id"]
+                else None,
+                "warehouse_id": self.warehouses[i["warehouse_id"][0]]
+                if i["warehouse_id"]
+                else None,
+            }
+
     def convert_qty_uom(self, qty, uom_id, product_template_id=None):
         """
         Convert a quantity to the reference uom of the product template.
         """
         try:
             uom_id = uom_id[0]
-        except Exception as e:
+        except Exception:
             pass
         if not uom_id:
             return qty
@@ -628,6 +667,7 @@ class exporter(object):
         for loc_object in self.generator.getData(
             "stock.location",
             ids=loc_ids,
+            fields=["warehouse_id"],
         ):
             if (
                 loc_object.get("warehouse_id", False)
@@ -750,6 +790,7 @@ class exporter(object):
                 "capacity",
                 "tool",
                 "export_to_frepple",
+                "is_frepple_constrained",
             ],
             search=[("export_to_frepple", "=", True)],
         ):
@@ -761,7 +802,7 @@ class exporter(object):
             owner = i["owner"]
             available = i["resource_calendar_id"]
             self.map_workcenters[i["id"]] = name
-            yield '<resource name=%s maximum="%s" category="%s" subcategory="%s" efficiency="%s"><location name=%s/>%s%s</resource>\n' % (
+            yield '<resource name=%s maximum="%s" category="%s" subcategory="%s" efficiency="%s" constrained="%s"><location name=%s/>%s%s</resource>\n' % (
                 quoteattr(name),
                 i["capacity"],
                 i["id"],
@@ -770,6 +811,7 @@ class exporter(object):
                 # Use this line if the tool usage is proportional to the MO quantity
                 "tool per piece" if i["tool"] else "",
                 i["time_efficiency"],
+                i["is_frepple_constrained"],
                 quoteattr(self.mfg_location),
                 ("<owner name=%s/>" % quoteattr(owner[1])) if owner else "",
                 ("<available name=%s/>" % quoteattr(available[1])) if available else "",
@@ -1046,6 +1088,7 @@ class exporter(object):
                 "bom_line_ids",
                 "sequence",
                 "product_qty_maximum",
+                "code",
             ],
         ):
             # Determine the location
@@ -1106,8 +1149,11 @@ class exporter(object):
                         # All routing steps are collapsed in a single operation.
                         #
                         if subcontractor:
-                            yield '<operation name=%s size_multiple="1" category="subcontractor" subcategory=%s duration="P%dD" posttime="P%dD" xsi:type="operation_fixed_time" priority="%s" size_minimum="%s">\n' "<item name=%s/><location name=%s/>\n" % (
+                            yield '<operation name=%s %ssize_multiple="1" category="subcontractor" subcategory=%s duration="P%dD" posttime="P%dD" xsi:type="operation_fixed_time" priority="%s" size_minimum="%s">\n' "<item name=%s/><location name=%s/>\n" % (
                                 quoteattr(operation),
+                                ("description=%s " % quoteattr(i["code"]))
+                                if i["code"]
+                                else "",
                                 quoteattr(subcontractor["name"]),
                                 subcontractor.get("delay", 0),
                                 self.po_lead,
@@ -1121,8 +1167,11 @@ class exporter(object):
                                 i["product_tmpl_id"][0]
                             ]["produce_delay"]
 
-                            yield '<operation name=%s size_multiple="1" duration_per="%s" posttime="P%dD" priority="%s" xsi:type="operation_time_per">\n' "<item name=%s/><location name=%s/>\n" % (
+                            yield '<operation name=%s %ssize_multiple="1" duration_per="%s" posttime="P%dD" priority="%s" xsi:type="operation_time_per">\n' "<item name=%s/><location name=%s/>\n" % (
                                 quoteattr(operation),
+                                ("description=%s " % quoteattr(i["code"]))
+                                if i["code"]
+                                else "",
                                 self.convert_float_time(duration_per)
                                 if duration_per and duration_per > 0
                                 else "P0D",
@@ -1175,10 +1224,9 @@ class exporter(object):
                             if len(
                                 j["bom_product_template_attribute_value_ids"]
                             ) > 0 and not all(
-                                elem
-                                in product_buf["product_template_attribute_value_ids"]
-                                for elem in j[
-                                    "bom_product_template_attribute_value_ids"
+                                elem in j["bom_product_template_attribute_value_ids"]
+                                for elem in product_buf[
+                                    "product_template_attribute_value_ids"
                                 ]
                             ):
                                 continue
@@ -1296,8 +1344,11 @@ class exporter(object):
                         # CASE 2: A routing operation is created with a suboperation for each
                         # routing step.
                         #
-                        yield '<operation name=%s size_multiple="1" posttime="P%dD" priority="%s" xsi:type="operation_routing"><item name=%s/><location name=%s/>\n' % (
+                        yield '<operation name=%s %ssize_multiple="1" posttime="P%dD" priority="%s" xsi:type="operation_routing"><item name=%s/><location name=%s/>\n' % (
                             quoteattr(operation),
+                            ("description=%s " % quoteattr(i["code"]))
+                            if i["code"]
+                            else "",
                             self.manufacturing_lead,
                             (i["sequence"] or 1),
                             quoteattr(product_buf["name"]),
@@ -1357,14 +1408,31 @@ class exporter(object):
                                 j["product_uom_id"],
                                 self.product_product[j["product_id"][0]]["template"],
                             )
-                            if j["product_id"][0] in fl:
-                                # If the same component is consumed multiple times in the same BOM
+                            if (
+                                j["product_id"][0],
+                                j["operation_id"][0] if j["operation_id"] else None,
+                            ) in fl:
+                                # If the same component is consumed multiple times in the same BOM step
                                 # we sum up all quantities in a single flow. We assume all of them
                                 # have the same effectivity.
-                                fl[j["product_id"][0]]["qty"] += qty
+                                fl[
+                                    (
+                                        j["product_id"][0],
+                                        j["operation_id"][0]
+                                        if j["operation_id"]
+                                        else None,
+                                    )
+                                ]["qty"] += qty
                             else:
                                 j["qty"] = qty
-                                fl[j["product_id"][0]] = j
+                                fl[
+                                    (
+                                        j["product_id"][0],
+                                        j["operation_id"][0]
+                                        if j["operation_id"]
+                                        else None,
+                                    )
+                                ] = j
 
                         steplist = mrp_routing_workcenters[i["id"]]
                         counter = 0
@@ -1425,8 +1493,11 @@ class exporter(object):
                                     )
                                 )
 
-                            yield "<suboperation>" '<operation name=%s priority="%s" duration_per="%s" xsi:type="operation_time_per">\n' "<location name=%s/>\n" '<loads><load quantity="%f" search=%s><resource name=%s/>%s</load>%s</loads>\n' % (
+                            yield "<suboperation>" '<operation name=%s %spriority="%s" duration_per="%s" xsi:type="operation_time_per">\n' "<location name=%s/>\n" '<loads><load quantity="%f" search=%s><resource name=%s/>%s</load>%s</loads>\n' % (
                                 quoteattr(name),
+                                ("description=%s " % quoteattr(i["code"]))
+                                if i["code"]
+                                else "",
                                 counter * 10,
                                 self.convert_float_time(step["time_cycle"] / 1440.0)
                                 if step["time_cycle"] and step["time_cycle"] > 0
@@ -1509,6 +1580,9 @@ class exporter(object):
                 "product_uom",
                 "order_id",
                 "move_ids",
+                "date_delivery",
+                "price_unit",
+                "currency_id",
             ],
         )
 
@@ -1578,7 +1652,7 @@ class exporter(object):
                 # Not interested in this sales order...
                 continue
             due = self.formatDateTime(
-                j.get("commitment_date", False) or j["date_order"]
+                i.get("date_delivery", False) or j.get("commitment_date", False) or j["date_order"]
             )
             priority = 1  # We give all customer orders the same default priority
 
@@ -1625,7 +1699,7 @@ class exporter(object):
             else:
                 logger.warning("Unknown sales order state: %s." % (state,))
                 continue
-
+            
             if status == "open" and i["move_ids"]:
                 # Use the delivery order info for open orders
                 cnt = 1
@@ -1648,6 +1722,7 @@ class exporter(object):
                         '<demand name=%s batch=%s quantity="%s" due="%s" priority="%s" minshipment="%s" status="%s"><item name=%s/><customer name=%s/><location name=%s/>'
                         # Enable only in frepple >= 6.25
                         # '<owner name=%s policy="%s" xsi:type="demand_group"/>'
+                        '<doubleproperty name="order_price" value="%s"/>'
                         "</demand>\n"
                     ) % (
                         quoteattr(
@@ -1667,7 +1742,11 @@ class exporter(object):
                         # Enable only in frepple >= 6.25
                         # quoteattr(i["order_id"][1]),
                         # "alltogether" if j["picking_policy"] == "one" else "independent",
-                    )
+                        i["price_unit"]*(i["product_uom_qty"] - i["qty_delivered"]) if i["currency_id"] == self.generator.env.company.currency_id.id else \
+                            self.generator.callMethod("res.currency", i["currency_id"], "_convert", args=[
+                                i["price_unit"]*(i["product_uom_qty"] - i["qty_delivered"]), self.generator.env.company.currency_id, self.generator.env.company, date.today()
+                            ]),
+                        )
                     cnt += 1
             else:
                 # Use sales order line info
@@ -1675,6 +1754,7 @@ class exporter(object):
                     '<demand name=%s batch=%s quantity="%s" due="%s" priority="%s" minshipment="%s" status="%s"><item name=%s/><customer name=%s/><location name=%s/>'
                     # Enable only in frepple >= 6.25
                     # '<owner name=%s policy="%s" xsi:type="demand_group"/>'
+                    '<doubleproperty name="order_price" value="%s"/>'
                     "</demand>\n"
                 ) % (
                     quoteattr(name),
@@ -1690,7 +1770,12 @@ class exporter(object):
                     # Enable only in frepple >= 6.25
                     # quoteattr(i["order_id"][1]),
                     # "alltogether" if j["picking_policy"] == "one" else "independent",
+                    i["price_unit"]*(i["product_uom_qty"] - i["qty_delivered"]) if i["currency_id"] == self.generator.env.company.currency_id.id else \
+                        self.generator.callMethod("res.currency", i["currency_id"], "_convert", args=[
+                            i["price_unit"]*(i["product_uom_qty"] - i["qty_delivered"]), self.generator.env.company.currency_id, self.generator.env.company, date.today()
+                        ]),
                 )
+                
         yield "</demands>\n"
 
     def export_forecasts(self):
@@ -1743,6 +1828,7 @@ class exporter(object):
         'PO' -> operationplan.ordertype
         'confirmed' -> operationplan.status
         """
+        self.subcontracting_mo_po_mapping = {}
         po_line = {
             i["id"]: i
             for i in self.generator.getData(
@@ -1802,8 +1888,14 @@ class exporter(object):
                 continue
             location = self.mfg_location
             if location and item and i["product_qty"] > i["qty_received"]:
-                start = self.formatDateTime(j["date_order"])
-                end = self.formatDateTime(i["date_planned"])
+                start = j["date_order"]
+                if not isinstance(start, datetime):
+                    start = datetime.fromisoformat(start)
+                end = i["date_planned"]
+                if not isinstance(end, datetime):
+                    end = datetime.fromisoformat(end)
+                start = self.formatDateTime(start if start < end else end)
+                end = self.formatDateTime(end)
                 qty = self.convert_qty_uom(
                     i["product_qty"] - i["qty_received"],
                     i["product_uom"],
@@ -1839,6 +1931,8 @@ class exporter(object):
                     "picking_id",
                     "date_deadline",
                     "purchase_line_id",
+                    "is_subcontract",
+                    "move_orig_ids",
                 ],
             ):
                 if (
@@ -1847,6 +1941,23 @@ class exporter(object):
                     or not i["location_dest_id"]
                     or i["state"] in ("draft", "cancel", "done")
                 ):
+                    continue
+                po_line_reference = "%s - %s - %s" % (
+                    j["name"],
+                    i["picking_id"][1],
+                    i["id"],
+                )
+                if i["is_subcontract"]:
+                    # PO lines on a subcontracting BOM are mapped as a MO in frepple
+                    for k in self.generator.getData(
+                        "stock.move",
+                        ids=i["move_orig_ids"],
+                        fields=["production_id"],
+                    ):
+                        if k["production_id"]:
+                            self.subcontracting_mo_po_mapping[
+                                k["production_id"][0]
+                            ] = po_line_reference
                     continue
                 item = self.product_product.get(i["product_id"][0], None)
                 if not item:
@@ -1858,14 +1969,18 @@ class exporter(object):
                 location = self.map_locations.get(i["location_dest_id"][0], None)
                 if not location:
                     continue
-                start = self.formatDateTime(j["date_order"])
-                end = self.formatDateTime(i["date_deadline"])
+                start = j["date_order"]
+                if not isinstance(start, datetime):
+                    start = datetime.fromisoformat(start)
+                end = i["date_deadline"]
+                if not isinstance(end, datetime):
+                    end = datetime.fromisoformat(end)
+                start = self.formatDateTime(start if start < end else end)
+                end = self.formatDateTime(end)
                 qty = i["product_qty"] - i["quantity_done"]
                 if qty >= 0:
                     yield '<operationplan reference=%s ordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/></operationplan>\n" % (
-                        quoteattr(
-                            "%s - %s - %s" % (j["name"], i["picking_id"][1], i["id"])
-                        ),
+                        quoteattr(po_line_reference),
                         start,
                         end,
                         qty,
@@ -1910,6 +2025,7 @@ class exporter(object):
                 "location_dest_id",
                 "product_id",
                 "move_raw_ids",
+                "picking_type_id",
             ]
             + ["workorder_ids"]
             if self.manage_work_orders
@@ -1917,6 +2033,15 @@ class exporter(object):
         ):
             # Filter out irrelevant manufacturing orders
             location = self.map_locations.get(i["location_dest_id"][0], None)
+            if not location and i["picking_type_id"]:
+                # For subcontracting MO we find the warehouse on the operation type
+                operation_type = self.operation_types.get(i["picking_type_id"][0], None)
+                if operation_type:
+                    location = operation_type["warehouse_id"]
+                    if location:
+                        code = self.subcontracting_mo_po_mapping.get(i["id"], None)
+                        if code:
+                            i["name"] = code
             item = (
                 self.product_product[i["product_id"][0]]
                 if i["product_id"][0] in self.product_product
@@ -2016,6 +2141,7 @@ class exporter(object):
                             "display_name",
                             "secondary_workcenters",
                         ],
+                        order="id",
                     )
                 ]
             else:
@@ -2035,6 +2161,7 @@ class exporter(object):
                             "date_deadline",
                             "reference",
                             "workorder_id",
+                            "operation_id",
                             "should_consume_qty",
                             "reserved_availability",
                         ],
@@ -2045,17 +2172,18 @@ class exporter(object):
 
             if not wo_list:
                 # There are no workorders on the manufacturing order
-                yield '<operation name=%s xsi:type="operation_fixed_time"><location name=%s/><flows>' % (
+                yield '<operation name=%s xsi:type="operation_fixed_time"><location name=%s/><item name=%s/><flows>' % (
                     quoteattr(operation),
-                    quoteattr(self.map_locations[i["location_dest_id"][0]]),
+                    quoteattr(location),
+                    quoteattr(item["name"]),
                 )
                 for mv in mv_list:
-                    item = (
+                    consumed_item = (
                         self.product_product[mv["product_id"][0]]
                         if mv["product_id"][0] in self.product_product
                         else None
                     )
-                    if not item:
+                    if not consumed_item:
                         continue
                     qty_flow = self.convert_qty_uom(
                         max(
@@ -2070,17 +2198,21 @@ class exporter(object):
                         mv["product_uom"],
                         self.product_product[mv["product_id"][0]]["template"],
                     )
-                    yield '<flow quantity="%s"><item name=%s/></flow>\n' % (
-                        -qty_flow / qty,
-                        quoteattr(item["name"]),
-                    )
+                    if qty_flow > 0:
+                        yield '<flow xsi:type="flow_start" quantity="%s"><item name=%s/></flow>\n' % (
+                            -qty_flow / qty,
+                            quoteattr(consumed_item["name"]),
+                        )
+                yield '<flow xsi:type="flow_end" quantity="1"><item name=%s/></flow>\n' % (
+                    quoteattr(item["name"]),
+                )
                 yield "</flows></operation></operationplan>"
             else:
                 # Define an operation for the MO
                 yield '<operation name=%s xsi:type="operation_routing" priority="0"><item name=%s/><location name=%s/><suboperations>' % (
                     quoteattr(operation),
                     quoteattr(item["name"]),
-                    quoteattr(self.map_locations[i["location_dest_id"][0]]),
+                    quoteattr(location),
                 )
                 # Define operations for each WO
                 idx = 10
@@ -2111,7 +2243,7 @@ class exporter(object):
                             max(time_left, 1),  # Miniminum 1 minute remaining :-)
                             units="minutes",
                         ),
-                        quoteattr(self.map_locations[i["location_dest_id"][0]]),
+                        quoteattr(location),
                     )
                     idx += 10
                     for mv in mv_list:
@@ -2124,7 +2256,13 @@ class exporter(object):
                             continue
 
                         # Skip moves of other WOs
-                        if mv["workorder_id"]:
+                        # When the odoo bill of material doesn't specify the operation
+                        # where a component is consumed, odoo consumes at the LAST
+                        # work order of the manufacturing order.
+                        # In frePPLe we want to consume them in the *FIRST* work order
+                        # instead. This is a much more correct & realistic representation
+                        # from a planning point of view.
+                        if mv["workorder_id"] and mv["operation_id"]:
                             if mv["workorder_id"][0] != wo["id"]:
                                 continue
                         elif not first_wo:
@@ -2218,7 +2356,7 @@ class exporter(object):
                                     now,
                                 )
                             wo_date = ' start="%s"' % self.formatDateTime(dt)
-                    except Exception as e:
+                    except Exception:
                         wo_date = ""
                     yield '<operationplan type="MO" reference=%s%s quantity="%s" status="%s"><operation name=%s/><owner reference=%s/></operationplan>\n' % (
                         quoteattr(wo["display_name"]),
@@ -2273,7 +2411,7 @@ class exporter(object):
             if i["product_min_qty"]:
                 yield """
                 <calendar name=%s default="0"><buckets>
-                <bucket start="2000-01-01T00:00:00" end="2030-01-01T00:00:00" value="%s" days="127" priority="998" starttime="PT0M" endtime="PT1440M"/>
+                <bucket start="2000-01-01T00:00:00" end="2030-12-31T00:00:00" value="%s" days="127" priority="998" starttime="PT0M" endtime="PT1440M"/>
                 </buckets>
                 </calendar>\n
                 """ % (
@@ -2283,7 +2421,7 @@ class exporter(object):
             if i["product_max_qty"] - i["product_min_qty"] > 0:
                 yield """
                 <calendar name=%s default="0"><buckets>
-                <bucket start="2000-01-01T00:00:00" end="2030-01-01T00:00:00" value="%s" days="127" priority="998" starttime="PT0M" endtime="PT1440M"/>
+                <bucket start="2000-01-01T00:00:00" end="2030-12-31T00:00:00" value="%s" days="127" priority="998" starttime="PT0M" endtime="PT1440M"/>
                 </buckets>
                 </calendar>\n
                 """ % (
@@ -2309,11 +2447,16 @@ class exporter(object):
         yield "<buffers>\n"
         if isinstance(self.generator, Odoo_generator):
             # SQL query gives much better performance
+            # disable RMA locations 141,142, Kundenmaterial 47, post-prod 153
             self.generator.env.cr.execute(
                 "SELECT product_id, stock_quant.location_id, sum(quantity), sum(reserved_quantity) "
                 "FROM stock_quant "
-                "JOIN stock_location ON stock_quant.location_id = stock_location.id "
-                "WHERE quantity > 0 AND scrap_location='f' "
+                "INNER JOIN stock_location ON stock_quant.location_id = stock_location.id "
+                "WHERE quantity > 0 "
+                "AND stock_location.scrap_location is distinct from true "
+                "AND stock_location.return_location is distinct from true "
+                "AND stock_location.usage = 'internal' "
+                "AND NOT stock_quant.location_id IN (57,141,153) "
                 "GROUP BY product_id, stock_quant.location_id "
                 "ORDER BY stock_quant.location_id ASC"
             )

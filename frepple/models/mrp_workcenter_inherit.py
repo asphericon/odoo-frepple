@@ -49,5 +49,11 @@ class WorkcenterInherit(models.Model):
     export_to_frepple = fields.Boolean(
         "Export to frePPLe",
         default=False,
-        help="Mark workcenters to export them into frepple for planning.",
+        help="Mark workcenters to export them into frePPLe for planning.",
+    )
+    is_frepple_constrained = fields.Boolean(
+        "Constrained in frePPLe",
+        default=False,
+        tracking=True,
+        help="Mark workcenters to be constrained in frePPLe.",
     )

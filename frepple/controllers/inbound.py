@@ -47,7 +47,7 @@ class importer(object):
         #  - Mode 2:
         #    Incremental export of some proposed transactions from frePPLe.
         #    In this mode mode we are not erasing any previous proposals.
-        self.mode = int(mode)
+        self.mode = 2 #int(mode)
 
         # Pick up the timezone of the connector user (or UTC if not set)
         try:
@@ -70,6 +70,20 @@ class importer(object):
 
     def run(self):
         msg = []
+        
+        # asph - update context to show it was done by frepple
+        frepple_context = (
+            dict(
+                self.env["res.users"]
+                .with_user(self.actual_user)
+                .context_get()
+            )
+            if self.actual_user
+            else dict(self.env.context)
+        )
+        frepple_context.update({"exported_by_frepple": True})
+        # - asph
+        
         if self.actual_user:
             proc_order = self.env["purchase.order"].with_user(self.actual_user)
             proc_orderline = self.env["purchase.order.line"].with_user(self.actual_user)
@@ -94,7 +108,7 @@ class importer(object):
             # Cancel previous draft purchase quotations
             m = self.env["purchase.order"]
             recs = m.search([("state", "=", "draft"), ("origin", "=", "frePPLe")])
-            recs.write({"state": "cancel"})
+            recs.with_context(frepple_context).write({"state": "cancel"})
             recs.unlink()
             msg.append("Removed %s old draft purchase orders" % len(recs))
 
@@ -107,7 +121,7 @@ class importer(object):
                     ("origin", "=", "frePPLe"),
                 ]
             )
-            recs.write({"state": "cancel"})
+            recs.with_context(frepple_context).write({"state": "cancel"})
             recs.unlink()
             msg.append("Removed %s old draft manufacturing orders" % len(recs))
 
@@ -184,7 +198,7 @@ class importer(object):
                                 date_ordered, "%Y-%m-%d %H:%M:%S"
                             )
                         if supplier_id not in supplier_reference:
-                            po = proc_order.create(
+                            po = proc_order.with_context(frepple_context).create(
                                 {
                                     "company_id": self.company.id,
                                     "partner_id": int(
@@ -240,7 +254,7 @@ class importer(object):
                             else:
                                 price_unit = 0
                             
-                            po_line = proc_orderline.create(
+                            po_line = proc_orderline.with_context(frepple_context).create(
                                 {
                                     "order_id": supplier_reference[supplier_id]["id"],
                                     "product_id": int(item_id),
@@ -294,7 +308,7 @@ class importer(object):
                                     # Can't filter on the computed display_name field in the search...
                                     continue
                                 if wo:
-                                    wo.write(
+                                    wo.with_context(frepple_context).write(
                                         {
                                             "date_planned_start": self.timezone.localize(
                                                 datetime.strptime(
@@ -343,6 +357,7 @@ class importer(object):
                             {
                                 "default_picking_type_id": picking.id,
                                 "ignore_secondary_workcenters": True,
+                                "exported_by_frepple": True,
                             }
                         )
 
@@ -398,7 +413,7 @@ class importer(object):
                                                 if wo.workcenter_id == wc[0].owner:
                                                     wo.workcenter_id = res["id"]
                                                 else:
-                                                    mfg_workorder_secondary.create(
+                                                    mfg_workorder_secondary.with_context(frepple_context).create(
                                                         {
                                                             "workcenter_id": res["id"],
                                                             "workorder_id": wo.id,
