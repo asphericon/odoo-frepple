@@ -1577,6 +1577,7 @@ class exporter(object):
                 "move_ids",
                 "date_delivery",
                 "price_unit",
+                "discount",
                 "currency_id",
             ],
         )
@@ -1737,8 +1738,9 @@ class exporter(object):
                         # Enable only in frepple >= 6.25
                         # quoteattr(i["order_id"][1]),
                         # "alltogether" if j["picking_policy"] == "one" else "independent",
-                        i["price_unit"]*(i["product_uom_qty"] - i["qty_delivered"]) if i["currency_id"] == self.generator.env.company.currency_id.id else \
-                            self.generator.callMethod("res.currency", i["currency_id"], "_convert", args=[
+                        i["price_unit"] * (i["product_uom_qty"] - i["qty_delivered"]) * (100 - i["discount"]) \
+                            if i["currency_id"] == self.generator.env.company.currency_id.id \
+                            else self.generator.callMethod("res.currency", i["currency_id"], "_convert", args=[
                                 i["price_unit"]*(i["product_uom_qty"] - i["qty_delivered"]), self.generator.env.company.currency_id, self.generator.env.company, date.today()
                             ]),
                         )
